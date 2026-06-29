@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include "Math/Mat4.h"
 
 std::string Shader::LoadFile(const std::string& path)
 {
@@ -66,6 +67,20 @@ bool Shader::LoadFromFile(const std::string& vertexPath, const std::string& frag
 void Shader::Use() const
 {
     glUseProgram(mProgram);
+}
+
+void Shader::SetMat4(const std::string& name, const Mat4& mat)
+{
+    glUseProgram(mProgram);
+
+    GLint location = glGetUniformLocation(mProgram, name.c_str());
+
+    glUniformMatrix4fv(
+        location,
+        1,
+        GL_FALSE,
+        mat.m
+    );
 }
 
 Shader::~Shader()

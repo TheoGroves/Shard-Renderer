@@ -2,7 +2,7 @@
 #include <format>
 #include <iostream>
 
-constexpr std::string engineVersion = "0.0.3";
+constexpr std::string engineVersion = "0.0.4";
 
 #define ANSI_RESET   "\033[0m"
 #define ANSI_YELLOW  "\033[33m"
@@ -45,6 +45,11 @@ void Engine::LogWarning(std::string_view warning)
 void Engine::LogError(std::string_view error)
 {
     std::cerr << ANSI_RED << "[ERROR] " << error << ANSI_RESET << "\n";
+}
+
+void Engine::UpdateMat4(const std::string& uniform, const Mat4& matrix)
+{
+    mShader.SetMat4(uniform, matrix);
 }
 
 bool Engine::Initialize(unsigned int screenWidth, unsigned int screenHeight, std::string title)
@@ -155,6 +160,11 @@ void Engine::DrawMesh(int meshID)
 
     glBindVertexArray(mesh.vao);
     glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_INT, 0);
+}
+
+GLFWwindow* Engine::GetNativeWindow() const
+{
+    return mWindow.GetNativeWindow();
 }
 
 bool Engine::ShouldClose() const

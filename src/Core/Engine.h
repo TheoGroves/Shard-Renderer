@@ -6,8 +6,9 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
-#include "Window.h"
-#include "Shader.h"
+#include "Rendering/Window.h"
+#include "Rendering/Shader.h"
+#include "Math/Mat4.h"
 
 class Engine
 {
@@ -16,6 +17,8 @@ public:
     static void LogWarning(std::string_view warning);
     static void LogError(std::string_view error);
 
+    void UpdateMat4(const std::string& uniform, const Mat4& matrix);
+
     bool Initialize(unsigned int screenWidth, unsigned int screenHeight, std::string title);
     
     void BeginFrame();
@@ -23,6 +26,8 @@ public:
 
     int CreateMesh();
     void DrawMesh(int meshID);
+
+    GLFWwindow* GetNativeWindow() const;
 
     void Shutdown();
 

@@ -1,7 +1,12 @@
 #version 460 core
 layout(location = 0) in vec3 aPos;
 
+uniform mat4 uModel;
+uniform mat4 uView;
+uniform mat4 uProj;
+
 void main()
 {
-    gl_Position = vec4(aPos, 1.0);
+    mat4 mvp = uProj * uView * uModel;
+    gl_Position = mvp * vec4(aPos, 1.0);
 }
