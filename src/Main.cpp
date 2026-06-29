@@ -25,10 +25,10 @@ extern "C" {
     __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 
-constexpr std::string engineVersion = "0.0.1";
+constexpr std::string engineVersion = "0.0.2";
 
-constexpr unsigned int screenWidth = 640;
-constexpr unsigned int screenHeight = 480;
+constexpr unsigned int screenWidth = 1920;
+constexpr unsigned int screenHeight = 1080;
 
 void LogMessage(std::string_view message)
 {
@@ -45,10 +45,34 @@ void LogError(std::string_view error)
     std::cerr << ANSI_RED << "[ERROR] " << error << ANSI_RESET << "\n";
 }
 
+void GLFWErrorCallback(int error, const char* description)
+{
+    LogError(std::format("GLFW {}: {}", error, description));
+}
+
+void APIENTRY GLDebug(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
+{
+    switch (severity)
+    {
+    case GL_DEBUG_SEVERITY_HIGH:
+        LogError(message);
+        break;
+    case GL_DEBUG_SEVERITY_MEDIUM:
+        LogWarning(message);
+        break;
+    case GL_DEBUG_SEVERITY_LOW:
+        LogWarning(message);
+        break;
+    case GL_DEBUG_SEVERITY_NOTIFICATION:
+        LogMessage(message);
+        break;
+    }
+}
+
 int main(void)
 {
-    LogMessage("SHARD RENDERER v" + engineVersion);
-    LogMessage("Compiled on: " + (std::string)__DATE__ + " at " + __TIME__);
+    LogMessage(std::format("SHARD RENDERER v{}", engineVersion));
+    LogMessage(std::format("Compiled on: {} at {}", (std::string)__DATE__,  __TIME__));
 
     GLFWwindow* window;
 
@@ -59,6 +83,10 @@ int main(void)
     }
     LogMessage("GLFW initialized successfully.");
 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
     window = glfwCreateWindow(screenWidth, screenHeight, "Shard Renderer", nullptr, nullptr);
     if (!window)
     {
@@ -66,6 +94,8 @@ int main(void)
         LogError("Failed to create OpenGL context.");
         return -1;
     }
+
+    LogMessage(std::format("Created Window of size {}x{}", screenWidth, screenHeight);
 
     glfwMakeContextCurrent(window);
 
@@ -77,13 +107,17 @@ int main(void)
     }
     LogMessage("GLEW initialized successfully.");
 
+    glfwSetErrorCallback(GLFWErrorCallback);
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(GLDebug, nullptr);
+
     const GLubyte* vendor   = glGetString(GL_VENDOR);
     const GLubyte* renderer = glGetString(GL_RENDERER);
     const GLubyte* version  = glGetString(GL_VERSION);
 
-    LogMessage(std::format("GPU Vendor  : {}", reinterpret_cast<const char*>(vendor)));
-    LogMessage(std::format("Renderer    : {}", reinterpret_cast<const char*>(renderer)));
-    LogMessage(std::format("GL Version  : {}", reinterpret_cast<const char*>(version)));
+    LogMessage(std::format("GPU Vendor: {}", reinterpret_cast<const char*>(vendor)));
+    LogMessage(std::format("Renderer  : {}", reinterpret_cast<const char*>(renderer)));
+    LogMessage(std::format("GL Version: {}", reinterpret_cast<const char*>(version)));
 
     glClearColor(0.05f, 0.07f, 0.09f, 1.0f);
 
