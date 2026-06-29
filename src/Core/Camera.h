@@ -1,7 +1,10 @@
 #pragma once
 
+#include <numbers>
 #include "Math/Vec3.h"
 #include "Math/Mat4.h"
+
+constexpr float degToRad = std::numbers::pi_v<float> / 180.0f;
 
 struct Camera
 {
@@ -13,7 +16,7 @@ struct Camera
 
     Vec3 rotation = {0, 0, 0};
 
-    float fov = 70.0f;
+    float fov = 70 * degToRad;
     float aspect = 1.778f;
     float nearPlane = 0.1f;
     float farPlane = 100.0f;
