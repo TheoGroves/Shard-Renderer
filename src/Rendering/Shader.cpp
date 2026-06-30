@@ -79,7 +79,7 @@ void Shader::SetMat4(const std::string& name, const Mat4& mat)
         location,
         1,
         GL_FALSE,
-        mat.m
+        mat.m.data()
     );
 }
 

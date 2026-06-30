@@ -1,12 +1,13 @@
 #pragma once
 
 #include <cmath>
+#include <array>
 #include "Vec3.h"
 
 // Column-major Mat4
 struct Mat4
 {
-    float m[16];
+    std::array<float,16> m{};
 
     static Mat4 Identity()
     {

@@ -34,3 +34,17 @@
 
 # Third Party Libraries
 dependencies/
+
+# CMake
+/build/
+/out/
+/cmake-build-*/
+*.so
+*.dll
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+*.pyd
+*.pdb
+*.pyc

@@ -2,7 +2,7 @@
 #include <format>
 #include <iostream>
 
-constexpr std::string engineVersion = "0.0.5";
+constexpr std::string engineVersion = "0.0.6";
 
 #define ANSI_RESET   "\033[0m"
 #define ANSI_YELLOW  "\033[33m"
@@ -50,6 +50,36 @@ void Engine::LogError(std::string_view error)
 void Engine::UpdateMat4(const std::string& uniform, const Mat4& matrix)
 {
     mShader.SetMat4(uniform, matrix);
+}
+
+Input Engine::GetInput()
+{
+    Input input{};
+
+    GLFWwindow* window = mWindow.GetNativeWindow();
+
+    input.forward  = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
+    input.backward = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
+    input.left     = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
+    input.right    = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
+
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
+
+    if (mFirstMouse)
+    {
+        mLastMouseX = x;
+        mLastMouseY = y;
+        mFirstMouse = false;
+    }
+
+    input.mouseDeltaX = static_cast<float>(x - mLastMouseX);
+    input.mouseDeltaY = static_cast<float>(mLastMouseY - y);
+
+    mLastMouseX = x;
+    mLastMouseY = y;
+
+    return input;
 }
 
 bool Engine::Initialize(unsigned int screenWidth, unsigned int screenHeight, std::string title)
@@ -165,6 +195,16 @@ void Engine::DrawMesh(int meshID)
 GLFWwindow* Engine::GetNativeWindow() const
 {
     return mWindow.GetNativeWindow();
+}
+
+void Engine::HideMouse()
+{
+    glfwSetInputMode(GetNativeWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+void Engine::ShowMouse()
+{
+    glfwSetInputMode(GetNativeWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
 bool Engine::ShouldClose() const
