@@ -48,3 +48,4 @@ cmake_install.cmake
 *.pyd
 *.pdb
 *.pyc
+renderer_config.ini

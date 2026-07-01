@@ -47,9 +47,18 @@ target_link_libraries(shard_render_engine PRIVATE
 )
 
 if (WIN32)
+    if (EXISTS "${DEPS_DIR}/lib/libglew32.a")
+        set(GLEW_LIB glew32)
+    elseif (EXISTS "${DEPS_DIR}/lib/glew32s.lib")
+        set(GLEW_LIB glew32s)
+        target_compile_definitions(renderer_core PRIVATE GLEW_STATIC)
+    else()
+        message(FATAL_ERROR "GLEW not found.")
+    endif()
+
     target_link_libraries(renderer_core PRIVATE
         glfw3
-        glew32s
+        ${GLEW_LIB}
         opengl32
         user32
         gdi32
