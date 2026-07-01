@@ -1,4 +1,5 @@
 from shard_renderer import Engine, Camera, PlayerController, Mat4
+import time
 
 cam = Camera()
 controller = PlayerController()
@@ -10,8 +11,9 @@ engine.hide_mouse()
 
 test_tri = engine.create_mesh()
 
+dt = 0
 while not engine.should_close():
-    dt = 0.016
+    s = time.perf_counter()
     player_input = engine.get_input()
     controller.update(cam, player_input, dt)
 
@@ -24,5 +26,5 @@ while not engine.should_close():
     engine.draw_mesh(test_tri)
 
     engine.end_frame()
-
+    dt = time.perf_counter() - s
 engine.shutdown()
