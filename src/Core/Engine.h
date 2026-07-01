@@ -5,6 +5,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <cstdint>
 #include "Rendering/Window.h"
 #include "Rendering/Shader.h"
 #include "Math/Mat4.h"
@@ -26,7 +27,7 @@ public:
     void BeginFrame();
     void EndFrame();
 
-    int CreateMesh();
+    int CreateMesh(const float* vertices, size_t vertexFloatCount, const uint32_t* indices, size_t indexCount);
     void DrawMesh(int meshID);
 
     GLFWwindow* GetNativeWindow() const;

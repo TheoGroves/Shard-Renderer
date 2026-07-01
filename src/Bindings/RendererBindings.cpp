@@ -1,5 +1,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/numpy.h>
 #include "Math/Vec3.h"
 #include "Math/Mat4.h"
 #include "Core/Engine.h"
@@ -31,7 +32,24 @@ PYBIND11_MODULE(shard_render_engine, m)
     py::class_<Engine>(m, "Engine")
         .def(py::init<>())
         .def("initialize", &Engine::Initialize)
-        .def("create_mesh", &Engine::CreateMesh)
+
+        .def("create_mesh", 
+            [](Engine& engine,
+                py::array_t<float, py::array::c_style | py::array::forcecast> vertices,
+                py::array_t<uint32_t, py::array::c_style | py::array::forcecast> indices)
+            {
+                auto v = vertices.request();
+                auto i = indices.request();
+
+                return engine.CreateMesh(
+                    static_cast<float*>(v.ptr),
+                    static_cast<size_t>(v.size),
+                    static_cast<uint32_t*>(i.ptr),
+                    static_cast<size_t>(i.size)
+                );
+            })
+
+
         .def("update_mat4", &Engine::UpdateMat4)
         .def("get_input", &Engine::GetInput)
         .def("should_close", &Engine::ShouldClose)

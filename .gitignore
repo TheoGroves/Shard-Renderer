@@ -35,6 +35,11 @@
 # Third Party Libraries
 dependencies/
 
+# Non-shader assets
+assets/*
+!assets/shaders/
+!assets/shaders/**
+
 # CMake
 /build/
 /out/

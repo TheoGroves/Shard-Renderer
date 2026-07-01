@@ -1,4 +1,5 @@
 from shard_renderer import Engine, Camera, PlayerController, Mat4
+from obj_parser import load_models
 import time
 
 cam = Camera()
@@ -9,7 +10,9 @@ engine.initialize(1920, 1080, "Shard Renderer")
 
 engine.hide_mouse()
 
-test_tri = engine.create_mesh()
+vertices, indices = load_models(["assets/models/StressTest.obj"])
+
+mesh = engine.create_mesh(vertices, indices)
 
 dt = 0
 while not engine.should_close():
@@ -23,7 +26,7 @@ while not engine.should_close():
 
     engine.begin_frame()
 
-    engine.draw_mesh(test_tri)
+    engine.draw_mesh(mesh)
 
     engine.end_frame()
     dt = time.perf_counter() - s

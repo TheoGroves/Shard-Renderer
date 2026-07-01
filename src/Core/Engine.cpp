@@ -133,7 +133,8 @@ bool Engine::Initialize(unsigned int screenWidth, unsigned int screenHeight, std
 
 void Engine::BeginFrame()
 {
-    glClear(GL_COLOR_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Engine::EndFrame()
@@ -142,35 +143,78 @@ void Engine::EndFrame()
     mWindow.PollEvents();
 }
 
-int Engine::CreateMesh()
+int Engine::CreateMesh(const float* vertices, size_t vertexFloatCount, const uint32_t* indices, size_t indexCount)
 {
-    float vertices[] = {
-        0.0f, 0.5f, 0.0f,
-        -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f
-    };
-
-    unsigned int indices[] = {
-        0, 1, 2
-    };
-
-    Mesh mesh;
+    Mesh mesh{};
 
     glGenVertexArrays(1, &mesh.vao);
     glBindVertexArray(mesh.vao);
     
     glGenBuffers(1, &mesh.vbo);
     glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        vertexFloatCount * sizeof(float),
+        vertices,
+        GL_STATIC_DRAW
+    );
 
     glGenBuffers(1, &mesh.ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(
+        GL_ELEMENT_ARRAY_BUFFER, 
+        indexCount * sizeof(uint32_t),
+        indices, 
+        GL_STATIC_DRAW
+    );
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+    constexpr GLsizei stride = 11 * sizeof(float);
+
+    // position
+    glVertexAttribPointer(
+        0, 
+        3, 
+        GL_FLOAT, 
+        GL_FALSE, 
+        stride, 
+        (void*)0
+    );
     glEnableVertexAttribArray(0);
 
-    mesh.indexCount = 3;
+    // uv map
+    glVertexAttribPointer(
+        1, 
+        2, 
+        GL_FLOAT, 
+        GL_FALSE, 
+        stride, 
+        (void*)(3 * sizeof(float))
+    );
+    glEnableVertexAttribArray(1);
+
+    // normals
+    glVertexAttribPointer(
+        2, 
+        3, 
+        GL_FLOAT, 
+        GL_FALSE, 
+        stride, 
+        (void*)(5 * sizeof(float))
+    );
+    glEnableVertexAttribArray(2);
+
+    // tangents
+    glVertexAttribPointer(
+        3, 
+        3, 
+        GL_FLOAT, 
+        GL_FALSE, 
+        stride, 
+        (void*)(8 * sizeof(float))
+    );
+    glEnableVertexAttribArray(3);
+
+    mesh.indexCount = static_cast<GLsizei>(indexCount);
 
     int id = mNextMeshID++;
     mMeshes[id] = mesh;
