@@ -6,6 +6,7 @@
 #include <string_view>
 #include <unordered_map>
 #include <cstdint>
+#include <vector>
 #include "Rendering/Window.h"
 #include "Rendering/Shader.h"
 #include "Math/Mat4.h"
@@ -18,7 +19,13 @@ public:
     static void LogWarning(std::string_view warning);
     static void LogError(std::string_view error);
 
+    GLuint CreateTextureRGBA(int width, int height, const std::vector<uint8_t>& pixels);
+    GLuint CreateTextureRGB32F(int width, int height, const std::vector<float>& pixels);
+
+    void UpdateInt(const std::string& uniform, int value);
     void UpdateMat4(const std::string& uniform, const Mat4& matrix);
+
+    void BindTexture(GLuint texture, GLuint unit);
 
     Input GetInput();
 

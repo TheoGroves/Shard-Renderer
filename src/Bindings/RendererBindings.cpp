@@ -51,6 +51,52 @@ PYBIND11_MODULE(shard_render_engine, m)
 
 
         .def("update_mat4", &Engine::UpdateMat4)
+        .def("update_int", &Engine::UpdateInt)
+
+        .def("create_texture_rgba",
+        [](Engine& engine, py::array_t<uint8_t, py::array::c_style | py::array::forcecast> image)
+        {
+            auto buf = image.request();
+
+            if (buf.ndim != 3 || buf.shape[2] != 4)
+                Engine::LogError("Expected HxWx4 image");
+
+            int height = static_cast<int>(buf.shape[0]);
+            int width  = static_cast<int>(buf.shape[1]);
+
+            auto* ptr = static_cast<uint8_t*>(buf.ptr);
+
+            std::vector<uint8_t> pixels(
+                ptr,
+                ptr + width * height * 4
+            );
+
+            return engine.CreateTextureRGBA(width, height, pixels);
+        })
+
+        .def("create_texture_rgb32f",
+        [](Engine& engine, py::array_t<float, py::array::c_style | py::array::forcecast> image)
+        {
+            auto buf = image.request();
+
+            if (buf.ndim != 3 || buf.shape[2] != 3)
+                Engine::LogError("Expected HxWx4 image");
+
+            int height = static_cast<int>(buf.shape[0]);
+            int width  = static_cast<int>(buf.shape[1]);
+
+            auto* ptr = static_cast<float*>(buf.ptr);
+
+            std::vector<float> pixels(
+                ptr,
+                ptr + width * height * 3
+            );
+
+            return engine.CreateTextureRGB32F(width, height, pixels);
+        })
+
+        .def("bind_texture", &Engine::BindTexture)
+
         .def("get_input", &Engine::GetInput)
         .def("should_close", &Engine::ShouldClose)
         .def("begin_frame", &Engine::BeginFrame)

@@ -69,6 +69,15 @@ void Shader::Use() const
     glUseProgram(mProgram);
 }
 
+void Shader::SetInt(const std::string& name, const int& value)
+{
+    glUseProgram(mProgram);
+
+    GLint location = glGetUniformLocation(mProgram, name.c_str());
+
+    glUniform1i(location, value);
+}
+
 void Shader::SetMat4(const std::string& name, const Mat4& mat)
 {
     glUseProgram(mProgram);

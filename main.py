@@ -1,5 +1,6 @@
 from shard_renderer import Engine, Camera, PlayerController, Mat4
 from obj_parser import load_models
+from texture_loader import load_texture
 import time
 
 cam = Camera()
@@ -10,7 +11,11 @@ engine.initialize(1920, 1080, "Shard Renderer")
 
 engine.hide_mouse()
 
-vertices, indices = load_models(["assets/models/StressTest.obj"])
+vertices, indices = load_models(["assets/models/Suzanne.obj"])
+
+albedo, _ = load_texture(engine, "assets/textures/test_texture.png", "assets/textures/test_texture.png")
+engine.bind_texture(albedo, 0)
+engine.update_int("uAlbedo", 0)
 
 mesh = engine.create_mesh(vertices, indices)
 

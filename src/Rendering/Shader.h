@@ -16,6 +16,7 @@ public:
     void Use() const;
 
     void SetMat4(const std::string& name, const Mat4& mat);
+    void SetInt(const std::string& name, const int& integer);
 
 private:
     GLuint mProgram = 0;

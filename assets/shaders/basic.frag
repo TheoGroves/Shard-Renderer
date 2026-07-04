@@ -1,6 +1,8 @@
 #version 460 core
 out vec4 FragColor;
 
+uniform sampler2D uAlbedo;
+
 in vec3 vPos;
 in vec2 vUV;
 in vec3 vNormal;
@@ -13,5 +15,7 @@ void main()
 
     float diff = max(dot(N, L), 0.0);
 
-    FragColor = vec4(vec3(diff), 1.0);
+    vec3 albedo = texture(uAlbedo, vUV).rgb;
+
+    FragColor = vec4(albedo*diff, 1.0);
 }

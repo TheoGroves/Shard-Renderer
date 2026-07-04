@@ -47,9 +47,73 @@ void Engine::LogError(std::string_view error)
     std::cerr << ANSI_RED << "[ERROR] " << error << ANSI_RESET << "\n";
 }
 
+void Engine::UpdateInt(const std::string& uniform, int value)
+{
+    mShader.SetInt(uniform, value);
+}
+
 void Engine::UpdateMat4(const std::string& uniform, const Mat4& matrix)
 {
     mShader.SetMat4(uniform, matrix);
+}
+
+GLuint Engine::CreateTextureRGBA(int width, int height, const std::vector<uint8_t>& pixels)
+{
+    GLuint texture;
+    glCreateTextures(GL_TEXTURE_2D, 1, &texture);
+
+    glTextureStorage2D(texture, 1, GL_RGBA8, width, height);
+
+    glTextureSubImage2D(
+        texture,
+        0,
+        0, 0,
+        width, 
+        height,
+        GL_RGBA,
+        GL_UNSIGNED_BYTE,
+        pixels.data()
+    );
+
+    glGenerateTextureMipmap(texture);
+
+    glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    return texture;
+}
+
+GLuint Engine::CreateTextureRGB32F(int width, int height, const std::vector<float>& pixels)
+{
+    GLuint texture;
+    glCreateTextures(GL_TEXTURE_2D, 1, &texture);
+
+    glTextureStorage2D(texture, 1, GL_RGB32F, width, height);
+
+    glTextureSubImage2D(
+        texture,
+        0,
+        0, 0,
+        width, 
+        height, 
+        GL_RGB,
+        GL_FLOAT,
+        pixels.data()
+    );
+
+    glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    return texture;
+}
+
+void Engine::BindTexture(GLuint texture, GLuint unit)
+{
+    glBindTextureUnit(unit, texture);   
 }
 
 Input Engine::GetInput()
