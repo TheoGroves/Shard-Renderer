@@ -7,10 +7,27 @@
 #include <unordered_map>
 #include <cstdint>
 #include <vector>
+#include <filesystem>
 #include "Rendering/Window.h"
 #include "Rendering/Shader.h"
 #include "Math/Mat4.h"
 #include "Core/Input.h"
+
+struct ShaderState
+{
+    std::filesystem::path vertex;
+    std::filesystem::path fragment;
+
+    bool operator==(const ShaderState& other) const
+    {
+        return vertex == other.vertex && fragment == other.fragment;
+    }
+
+    bool operator!=(const ShaderState& other) const
+    {
+        return !(*this == other);
+    }
+};
 
 class Engine
 {
@@ -34,8 +51,9 @@ public:
     void BeginFrame();
     void EndFrame();
 
+    void UseShader(const std::string& frag, const std::string& vert);
     int CreateMesh(const float* vertices, size_t vertexFloatCount, const uint32_t* indices, size_t indexCount);
-    void DrawMesh(int meshID);
+    void DrawMesh(int meshID, const std::string& fragPath, const std::string& vertPath);
 
     GLFWwindow* GetNativeWindow() const;
 
@@ -57,6 +75,7 @@ private:
     bool mRunning = true;
 
     Shader mShader;
+    ShaderState mCurrentShader;
 
     struct Mesh
     {

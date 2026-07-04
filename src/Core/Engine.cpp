@@ -2,7 +2,7 @@
 #include <format>
 #include <iostream>
 
-constexpr std::string engineVersion = "0.0.6";
+constexpr std::string engineVersion = "0.0.8";
 
 #define ANSI_RESET   "\033[0m"
 #define ANSI_YELLOW  "\033[33m"
@@ -190,8 +190,6 @@ bool Engine::Initialize(unsigned int screenWidth, unsigned int screenHeight, std
 
     glClearColor(0.05f, 0.07f, 0.09f, 1.0f);
 
-    mShader.LoadFromFile("assets/shaders/basic.vert", "assets/shaders/basic.frag");
-
     return true;
 }
 
@@ -286,8 +284,20 @@ int Engine::CreateMesh(const float* vertices, size_t vertexFloatCount, const uin
     return id;
 }
 
-void Engine::DrawMesh(int meshID)
+void Engine::UseShader(const std::string& frag, const std::string& vert)
 {
+    ShaderState requested{vert, frag};
+
+    if (requested != mCurrentShader) {
+        mShader.LoadFromFile(vert, frag);
+        mCurrentShader = requested;
+    }
+}
+
+void Engine::DrawMesh(int meshID, const std::string& frag, const std::string& vert)
+{
+    UseShader(frag, vert);
+
     auto it = mMeshes.find(meshID);
     if (it == mMeshes.end())
         return;

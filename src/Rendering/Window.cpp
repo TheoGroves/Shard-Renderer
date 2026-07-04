@@ -14,8 +14,10 @@ bool Window::Create(int width, int height, const std::string& title)
 
     if (!mWindow)
         return false;
-    
+
     glfwMakeContextCurrent(mWindow);
+
+    glfwSwapInterval(0);
 
     return true;
 }

@@ -13,7 +13,9 @@ engine.hide_mouse()
 
 vertices, indices = load_models(["assets/models/Suzanne.obj"])
 
-albedo, _ = load_texture(engine, "assets/textures/test_texture.png", "assets/textures/test_texture.png")
+engine.use_shader("assets/shaders/basic.frag", "assets/shaders/basic.vert")
+
+albedo, _ = load_texture(engine, "assets/textures/empty.png", "assets/textures/empty.png")
 engine.bind_texture(albedo, 0)
 engine.update_int("uAlbedo", 0)
 
@@ -31,7 +33,7 @@ while not engine.should_close():
 
     engine.begin_frame()
 
-    engine.draw_mesh(mesh)
+    engine.draw_mesh(mesh, "assets/shaders/basic.frag", "assets/shaders/basic.vert")
 
     engine.end_frame()
     dt = time.perf_counter() - s
