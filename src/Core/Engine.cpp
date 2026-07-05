@@ -1,6 +1,7 @@
 #include "Engine.h"
 #include <format>
 #include <iostream>
+#include <utility>
 
 constexpr std::string engineVersion = "0.0.8";
 
@@ -47,14 +48,26 @@ void Engine::LogError(std::string_view error)
     std::cerr << ANSI_RED << "[ERROR] " << error << ANSI_RESET << "\n";
 }
 
-void Engine::UpdateInt(const std::string& uniform, int value)
+void Engine::UpdateInt(int matID, const std::string& uniform, int value)
 {
-    mShader.SetInt(uniform, value);
+    auto matIt = mMaterials.find(matID);
+
+    if (matIt == mMaterials.end())
+        return;
+    
+    Material& material = matIt->second;
+    material.shader->SetInt(uniform, value);
 }
 
-void Engine::UpdateMat4(const std::string& uniform, const Mat4& matrix)
+void Engine::UpdateMat4(int matID, const std::string& uniform, const Mat4& matrix)
 {
-    mShader.SetMat4(uniform, matrix);
+    auto matIt = mMaterials.find(matID);
+
+    if (matIt == mMaterials.end())
+        return;
+    
+    Material& material = matIt->second;
+    material.shader->SetMat4(uniform, matrix);
 }
 
 GLuint Engine::CreateTextureRGBA(int width, int height, const std::vector<uint8_t>& pixels)
@@ -284,27 +297,32 @@ int Engine::CreateMesh(const float* vertices, size_t vertexFloatCount, const uin
     return id;
 }
 
-void Engine::UseShader(const std::string& frag, const std::string& vert)
+int Engine::CreateMaterial(const std::string& frag, const std::string& vert)
 {
-    ShaderState requested{vert, frag};
+    auto shader = std::make_shared<Shader>();
+    shader->LoadFromFile(vert, frag);
 
-    if (requested != mCurrentShader) {
-        mShader.LoadFromFile(vert, frag);
-        mCurrentShader = requested;
-    }
+    Material mat;
+    mat.shader = shader;
+
+    int id = mNextMaterialID++;
+    mMaterials[id] = std::move(mat);
+
+    return id;
 }
 
-void Engine::DrawMesh(int meshID, const std::string& frag, const std::string& vert)
+void Engine::DrawMesh(int meshID, int materialID)
 {
-    UseShader(frag, vert);
+    auto meshIt = mMeshes.find(meshID);
+    auto matIt = mMaterials.find(materialID);
 
-    auto it = mMeshes.find(meshID);
-    if (it == mMeshes.end())
+    if (meshIt == mMeshes.end() || matIt == mMaterials.end())
         return;
     
-    Mesh& mesh = it->second;
+    Mesh& mesh = meshIt->second;
+    Material& material = matIt->second;
 
-    mShader.Use();
+    material.shader->Use();
 
     glBindVertexArray(mesh.vao);
     glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_INT, 0);

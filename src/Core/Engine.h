@@ -10,6 +10,7 @@
 #include <filesystem>
 #include "Rendering/Window.h"
 #include "Rendering/Shader.h"
+#include "Rendering/Material.h"
 #include "Math/Mat4.h"
 #include "Core/Input.h"
 
@@ -39,8 +40,8 @@ public:
     GLuint CreateTextureRGBA(int width, int height, const std::vector<uint8_t>& pixels);
     GLuint CreateTextureRGB32F(int width, int height, const std::vector<float>& pixels);
 
-    void UpdateInt(const std::string& uniform, int value);
-    void UpdateMat4(const std::string& uniform, const Mat4& matrix);
+    void UpdateInt(int matID, const std::string& uniform, int value);
+    void UpdateMat4(int matID, const std::string& uniform, const Mat4& matrix);
 
     void BindTexture(GLuint texture, GLuint unit);
 
@@ -51,9 +52,9 @@ public:
     void BeginFrame();
     void EndFrame();
 
-    void UseShader(const std::string& frag, const std::string& vert);
+    int CreateMaterial(const std::string& frag, const std::string& vert);
     int CreateMesh(const float* vertices, size_t vertexFloatCount, const uint32_t* indices, size_t indexCount);
-    void DrawMesh(int meshID, const std::string& fragPath, const std::string& vertPath);
+    void DrawMesh(int meshID, int materialID);
 
     GLFWwindow* GetNativeWindow() const;
 
@@ -87,4 +88,7 @@ private:
 
     std::unordered_map<int, Mesh> mMeshes;
     int mNextMeshID = 1;
+
+    std::unordered_map<int, Material> mMaterials;
+    int mNextMaterialID = 1;
 };
