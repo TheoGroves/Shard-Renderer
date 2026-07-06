@@ -95,7 +95,7 @@ void main()
     vec2 parallaxDir = view.xy / denom;
     vec2 parallaxOffset = parallaxDir * (height * uHeightScale);
 
-    vec2 uvParallax = clamp(vUV - parallaxOffset, 0.001, 0.999);
+    vec2 uvParallax = fract(vUV - parallaxOffset);
 
     vec3 nMap = texture(uNormal, uvParallax).rgb;
     nMap = nMap * 2.0 - 1.0;

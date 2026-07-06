@@ -21,7 +21,6 @@ public:
     void SetVec3(const std::string& name, const Vec3& vector);
     void SetMat4(const std::string& name, const Mat4& mat);
 
-
 private:
     GLuint mProgram = 0;
 

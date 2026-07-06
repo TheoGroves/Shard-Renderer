@@ -11,7 +11,7 @@ engine.initialize(1920, 1080, "Shard Renderer")
 
 engine.hide_mouse()
 
-vertices, indices = load_models(["assets/models/Suzanne.obj"])
+vertices, indices = load_models(["assets/models/Warehouse.obj"])
 
 mesh = engine.create_mesh(vertices, indices)
 mat = engine.create_material("assets/shaders/standard.frag", "assets/shaders/standard.vert")
