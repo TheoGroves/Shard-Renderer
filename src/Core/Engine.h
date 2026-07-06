@@ -70,6 +70,13 @@ public:
 
     GLFWwindow* GetNativeWindow() const;
 
+    void DisableDepthMask();
+    void EnableDepthMask();
+    void DisableCullFace();
+    void EnableCullFace();
+    void DisableDepthTest();
+    void EnableDepthTest();
+
     void HideMouse();
     void ShowMouse();
 

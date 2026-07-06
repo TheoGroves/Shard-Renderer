@@ -22,6 +22,25 @@ in vec4 vFragPosLightSpace;
 
 out vec4 FragColor;
 
+const vec2 poisson[16] = vec2[](
+    vec2(-0.942,-0.399),
+    vec2( 0.945,-0.769),
+    vec2(-0.094,-0.929),
+    vec2( 0.345, 0.294),
+    vec2(-0.916, 0.458),
+    vec2(-0.815,-0.879),
+    vec2(-0.383, 0.277),
+    vec2( 0.975, 0.756),
+    vec2( 0.443,-0.975),
+    vec2( 0.537,-0.474),
+    vec2(-0.265,-0.418),
+    vec2( 0.792, 0.191),
+    vec2(-0.242, 0.998),
+    vec2(-0.814, 0.914),
+    vec2( 0.200, 0.786),
+    vec2( 0.144,-0.141)
+);
+
 float ShadowCalculation(vec4 fragPosLightSpace, vec3 n, vec3 l)
 {
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
@@ -37,16 +56,19 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 n, vec3 l)
 
     vec2 texelSize = 1.0 / textureSize(uShadowMap, 0);
 
-    // PCF 3x3
-    for(int x = -1; x <= 1; x++)
+    // PCF 3x3 Poisson Sampling
+    float radius = 2.0;
+
+    for(int i = 0; i < 16; i++)
     {
-        for(int y = -1; y <= 1; y++)
-        {
-            float closestDepth = texture(uShadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
-            shadow += (currentDepth - bias > closestDepth) ? 1.0 : 0.0;
-        }
+        float depth = texture(
+            uShadowMap,
+            projCoords.xy + poisson[i] * texelSize * radius
+        ).r;
+        
+        shadow += currentDepth - bias > depth ? 1.0 : 0.0;
     }
-    shadow /= 9.0;
+    shadow /= 16.0;
 
     return shadow;
 }

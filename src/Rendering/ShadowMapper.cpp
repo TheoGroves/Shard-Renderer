@@ -40,7 +40,7 @@ void ShadowMapper::CreateResources()
     );
 
     // Light Projection
-    mProj = Ortho(-40, 40, -40, 40, 0.1, 50.0);
+    mProj = Ortho(-20, 20, -20, 20, 0.1, 50.0);
 }
 
 void ShadowMapper::Initialize(const Vec3& lightDir)

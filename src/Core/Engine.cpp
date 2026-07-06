@@ -3,7 +3,7 @@
 #include <iostream>
 #include <utility>
 
-constexpr std::string engineVersion = "0.1.0";
+constexpr std::string engineVersion = "0.1.1";
 
 #define ANSI_RESET   "\033[0m"
 #define ANSI_YELLOW  "\033[33m"
@@ -392,6 +392,36 @@ void Engine::DrawShadow(int meshID, const Mat4& model)
 GLFWwindow* Engine::GetNativeWindow() const
 {
     return mWindow.GetNativeWindow();
+}
+
+void Engine::DisableDepthMask()
+{
+    glDepthMask(GL_FALSE);
+}
+
+void Engine::EnableDepthMask()
+{
+    glDepthMask(GL_TRUE);
+}
+
+void Engine::DisableCullFace()
+{
+    glDisable(GL_CULL_FACE);
+}
+
+void Engine::EnableCullFace()
+{
+    glEnable(GL_CULL_FACE);
+}
+
+void Engine::DisableDepthTest()
+{
+    glDisable(GL_DEPTH_TEST);
+}
+
+void Engine::EnableDepthTest()
+{
+    glEnable(GL_DEPTH_TEST);
 }
 
 void Engine::HideMouse()

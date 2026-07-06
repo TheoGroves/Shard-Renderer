@@ -75,7 +75,10 @@ void Shader::SetInt(const std::string& name, const int& value)
 
     GLint location = glGetUniformLocation(mProgram, name.c_str());
 
-    glUniform1i(location, value);
+    if (location != -1)
+    {
+        glUniform1i(location, value);
+    }
 }
 
 void Shader::SetFloat(const std::string& name, const float& value)
@@ -84,7 +87,10 @@ void Shader::SetFloat(const std::string& name, const float& value)
 
     GLint location = glGetUniformLocation(mProgram, name.c_str());
 
-    glUniform1f(location, value);
+    if (location != -1)
+    {
+        glUniform1f(location, value);
+    }
 }
 
 void Shader::SetVec3(const std::string& name, const Vec3& vector)
@@ -93,7 +99,10 @@ void Shader::SetVec3(const std::string& name, const Vec3& vector)
 
     GLint location = glGetUniformLocation(mProgram, name.c_str());
 
-    glUniform3fv(location, 1, &vector.x);
+    if (location != -1)
+    {
+        glUniform3fv(location, 1, &vector.x);
+    }
 }
 
 void Shader::SetMat4(const std::string& name, const Mat4& mat)
@@ -102,12 +111,15 @@ void Shader::SetMat4(const std::string& name, const Mat4& mat)
 
     GLint location = glGetUniformLocation(mProgram, name.c_str());
 
-    glUniformMatrix4fv(
-        location,
-        1,
-        GL_FALSE,
-        mat.m.data()
-    );
+    if (location != -1)
+    {
+        glUniformMatrix4fv(
+            location,
+            1,
+            GL_FALSE,
+            mat.m.data()
+        );
+    }
 }
 
 Shader::~Shader()
