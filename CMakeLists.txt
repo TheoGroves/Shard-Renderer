@@ -32,6 +32,7 @@ add_library(renderer_core STATIC
     src/Core/Engine.cpp
     src/Rendering/Window.cpp
     src/Rendering/Shader.cpp
+    src/Rendering/ShadowMapper.cpp
 )
 
 target_include_directories(renderer_core PUBLIC

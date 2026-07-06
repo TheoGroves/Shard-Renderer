@@ -3,7 +3,7 @@
 #include <iostream>
 #include <utility>
 
-constexpr std::string engineVersion = "0.0.9";
+constexpr std::string engineVersion = "0.1.0";
 
 #define ANSI_RESET   "\033[0m"
 #define ANSI_YELLOW  "\033[33m"
@@ -57,6 +57,28 @@ void Engine::UpdateInt(int matID, const std::string& uniform, int value)
     
     Material& material = matIt->second;
     material.shader->SetInt(uniform, value);
+}
+
+void Engine::UpdateFloat(int matID, const std::string& uniform, float value)
+{
+    auto matIt = mMaterials.find(matID);
+
+    if (matIt == mMaterials.end())
+        return;
+    
+    Material& material = matIt->second;
+    material.shader->SetFloat(uniform, value);
+}
+
+void Engine::UpdateVec3(int matID, const std::string& uniform, Vec3 value)
+{
+    auto matIt = mMaterials.find(matID);
+
+    if (matIt == mMaterials.end())
+        return;
+    
+    Material& material = matIt->second;
+    material.shader->SetVec3(uniform, value);
 }
 
 void Engine::UpdateMat4(int matID, const std::string& uniform, const Mat4& matrix)
@@ -190,6 +212,8 @@ bool Engine::Initialize(unsigned int screenWidth, unsigned int screenHeight, std
     }
     LogMessage("GLEW initialized successfully.");
 
+    mShadowMapper.CreateResources();
+
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(GLDebug, nullptr);
 
@@ -202,6 +226,9 @@ bool Engine::Initialize(unsigned int screenWidth, unsigned int screenHeight, std
     LogMessage(std::format("GL Version: {}", reinterpret_cast<const char*>(version)));
 
     glClearColor(0.05f, 0.07f, 0.09f, 1.0f);
+
+    mWidth  = screenWidth;
+    mHeight = screenHeight;
 
     return true;
 }
@@ -311,7 +338,7 @@ int Engine::CreateMaterial(const std::string& frag, const std::string& vert)
     return id;
 }
 
-void Engine::DrawMesh(int meshID, int materialID)
+void Engine::DrawMesh(int meshID, int materialID, const Mat4& model)
 {
     auto meshIt = mMeshes.find(meshID);
     auto matIt = mMaterials.find(materialID);
@@ -324,8 +351,42 @@ void Engine::DrawMesh(int meshID, int materialID)
 
     material.shader->Use();
 
+    material.shader->SetMat4("uModel", model);
+
     glBindVertexArray(mesh.vao);
     glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_INT, 0);
+}
+
+void Engine::BeginShadows(Vec3 lightDir, Vec3 target)
+{
+    mShadowMapper.Update(lightDir, target);
+    mShadowMapper.BeginRender();
+}
+
+void Engine::EndShadows()
+{
+    mShadowMapper.EndRender(mWidth, mHeight);
+}
+
+Mat4 Engine::GetLightSpaceMatrix() const
+{
+    return mShadowMapper.GetLightSpaceMatrix();
+}
+
+GLuint Engine::GetShadowDepth() const
+{
+    return mShadowMapper.GetDepthTexture();
+}
+
+void Engine::DrawShadow(int meshID, const Mat4& model)
+{
+    auto meshIt = mMeshes.find(meshID);
+    if (meshIt == mMeshes.end())
+        return;
+
+    Mesh& mesh = meshIt->second;
+
+    mShadowMapper.RenderDepthMesh(mesh.vao, mesh.indexCount, model);
 }
 
 GLFWwindow* Engine::GetNativeWindow() const

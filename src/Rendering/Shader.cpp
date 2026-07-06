@@ -78,6 +78,24 @@ void Shader::SetInt(const std::string& name, const int& value)
     glUniform1i(location, value);
 }
 
+void Shader::SetFloat(const std::string& name, const float& value)
+{
+    glUseProgram(mProgram);
+
+    GLint location = glGetUniformLocation(mProgram, name.c_str());
+
+    glUniform1f(location, value);
+}
+
+void Shader::SetVec3(const std::string& name, const Vec3& vector)
+{
+    glUseProgram(mProgram);
+
+    GLint location = glGetUniformLocation(mProgram, name.c_str());
+
+    glUniform3fv(location, 1, &vector.x);
+}
+
 void Shader::SetMat4(const std::string& name, const Mat4& mat)
 {
     glUseProgram(mProgram);

@@ -11,7 +11,9 @@
 #include "Rendering/Window.h"
 #include "Rendering/Shader.h"
 #include "Rendering/Material.h"
+#include "Rendering/Shadowmapper.h"
 #include "Math/Mat4.h"
+#include "Math/Vec3.h"
 #include "Core/Input.h"
 
 struct ShaderState
@@ -41,6 +43,8 @@ public:
     GLuint CreateTextureRGB32F(int width, int height, const std::vector<float>& pixels);
 
     void UpdateInt(int matID, const std::string& uniform, int value);
+    void UpdateFloat(int matID, const std::string& uniform, float value);
+    void UpdateVec3(int matID, const std::string& uniform, Vec3 value);
     void UpdateMat4(int matID, const std::string& uniform, const Mat4& matrix);
 
     void BindTexture(GLuint texture, GLuint unit);
@@ -54,7 +58,15 @@ public:
 
     int CreateMaterial(const std::string& frag, const std::string& vert);
     int CreateMesh(const float* vertices, size_t vertexFloatCount, const uint32_t* indices, size_t indexCount);
-    void DrawMesh(int meshID, int materialID);
+    void DrawMesh(int meshID, int materialID, const Mat4& model);
+
+    void BeginShadows(Vec3 lightDir, Vec3 target);
+    void EndShadows();
+
+    Mat4 GetLightSpaceMatrix() const;
+    GLuint GetShadowDepth() const;
+
+    void DrawShadow(int meshID, const Mat4& model);
 
     GLFWwindow* GetNativeWindow() const;
 
@@ -91,4 +103,9 @@ private:
 
     std::unordered_map<int, Material> mMaterials;
     int mNextMaterialID = 1;
+
+    ShadowMapper mShadowMapper;
+
+    int mWidth = 0;
+    int mHeight = 0;
 };

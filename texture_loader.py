@@ -39,7 +39,7 @@ def save_cooked_tex(src_path, out_path):
 def load_cooked_tex(ctx, path):
     return None, None
 
-def load_env_map(ctx, path):
+def load_env_map(engine, path):
     exr = OpenEXR.InputFile(path)
     dw = exr.header()['dataWindow']
 
@@ -56,7 +56,7 @@ def load_env_map(ctx, path):
     img = img.reshape((height, width, 3))
     img = np.flipud(img)
 
-    env_map = ctx.texture(size=(width, height), components=3, data=img.tobytes(), dtype='f4')
+    env_map = engine.create_texture_rgb32f(img)
 
     return env_map, img, width, height, path
 

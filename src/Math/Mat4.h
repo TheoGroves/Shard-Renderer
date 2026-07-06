@@ -17,6 +17,25 @@ struct Mat4
     }
 };
 
+inline Mat4 operator*(const Mat4& a, const Mat4& b)
+{
+    Mat4 r{};
+
+    for (int col = 0; col < 4; col++)
+    {
+        for (int row = 0; row < 4; row++)
+        {
+            r.m[col * 4 + row] =
+                a.m[0 * 4 + row] * b.m[col * 4 + 0] +
+                a.m[1 * 4 + row] * b.m[col * 4 + 1] +
+                a.m[2 * 4 + row] * b.m[col * 4 + 2] +
+                a.m[3 * 4 + row] * b.m[col * 4 + 3];
+        }
+    }
+
+    return r;
+}
+
 inline Mat4 Translate(const Vec3& v)
 {
     Mat4 r = Mat4::Identity();
@@ -40,6 +59,23 @@ inline Mat4 Perspective(float fov, float aspect, float near, float far)
     r.m[11] = -1.0f;
     r.m[14] = (2.0f * far * near) / (near - far); 
     
+    return r;
+}
+
+inline Mat4 Ortho(float left, float right, float bottom, float top, float near, float far)
+{
+    Mat4 r = {};
+
+    r.m[0]  = 2.0f / (right - left);
+    r.m[5]  = 2.0f / (top - bottom);
+    r.m[10] = -2.0f / (far - near);
+
+    r.m[12] = -(right + left) / (right - left);
+    r.m[13] = -(top + bottom) / (top - bottom);
+    r.m[14] = -(far + near) / (far - near);
+
+    r.m[15] = 1.0f;
+
     return r;
 }
 

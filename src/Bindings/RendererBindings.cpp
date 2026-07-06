@@ -49,9 +49,10 @@ PYBIND11_MODULE(shard_render_engine, m)
                 );
             })
 
-
-        .def("update_mat4", &Engine::UpdateMat4)
         .def("update_int", &Engine::UpdateInt)
+        .def("update_float", &Engine::UpdateFloat)
+        .def("update_vec3", &Engine::UpdateVec3)
+        .def("update_mat4", &Engine::UpdateMat4)
 
         .def("create_texture_rgba",
         [](Engine& engine, py::array_t<uint8_t, py::array::c_style | py::array::forcecast> image)
@@ -102,6 +103,11 @@ PYBIND11_MODULE(shard_render_engine, m)
         .def("begin_frame", &Engine::BeginFrame)
         .def("create_material", &Engine::CreateMaterial)
         .def("draw_mesh", &Engine::DrawMesh)
+        .def("get_shadow_depth", &Engine::GetShadowDepth)
+        .def("get_light_space", &Engine::GetLightSpaceMatrix)
+        .def("begin_shadows", &Engine::BeginShadows)
+        .def("end_shadows", &Engine::EndShadows)
+        .def("draw_shadow", &Engine::DrawShadow)
         .def("hide_mouse", &Engine::HideMouse)
         .def("show_mouse", &Engine::ShowMouse)
         .def("end_frame", &Engine::EndFrame)
