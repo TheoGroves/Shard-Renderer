@@ -34,10 +34,32 @@ def load_texture(engine, path, fallback):
     return tex, filename
 
 def save_cooked_tex(src_path, out_path):
-    pass
+    img = Image.open(src_path).convert("RGBA")
+    img = img.transpose(Image.FLIP_TOP_BOTTOM)
 
-def load_cooked_tex(ctx, path):
-    return None, None
+    pixels = np.asarray(img, dtype=np.uint8)
+
+    data = {
+        "width": img.width,
+        "height": img.height,
+        "rgba": pixels.tobytes()
+    }
+
+    with open(out_path, "wb") as f:
+        pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+def load_cooked_tex(engine, path):
+    with open(path, "rb") as f:
+        data = pickle.load(f)
+
+    pixels = np.frombuffer(
+        data["rgba"],
+        dtype=np.uint8
+    ).reshape((data["height"], data["width"], 4))
+
+    tex = engine.create_texture_rgba(pixels)
+
+    return tex, path
 
 def load_env_map(engine, path):
     exr = OpenEXR.InputFile(path)
@@ -61,7 +83,24 @@ def load_env_map(engine, path):
     return env_map, img, width, height, path
 
 def save_cooked_env_map(img, width, height, out_path):
-    pass
+    data = {
+        "width": width,
+        "height": height,
+        "rgb": np.asarray(img, dtype=np.float32).tobytes()
+    }
 
-def load_cooked_env_map(ctx, path):
-    return None, None
+    with open(out_path, "wb") as f:
+        pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+def load_cooked_env_map(engine, path):
+    with open(path, "rb") as f:
+        data = pickle.load(f)
+
+    pixels = np.frombuffer(
+        data["rgb"],
+        dtype=np.float32
+    ).reshape((data["height"], data["width"], 3))
+
+    tex = engine.create_texture_rgb32f(pixels)
+
+    return tex, path
