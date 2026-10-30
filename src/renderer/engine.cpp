@@ -1,16 +1,13 @@
 #include "engine.h"
 #include <iostream>
 
-void Engine::init(uint32_t width, uint32_t height) {
-    main_window = new Window(width, height, "ShardRenderer");
-
-    instance = new VulkanInstance();
+Engine::Engine(uint32_t width, uint32_t height) {
+    main_window = std::make_unique<Window>(width, height, "ShardRenderer");
+    instance = std::make_unique<VulkanInstance>();
 }
 
-void Engine::cleanup() {
+Engine::~Engine() {
     std::cout << "Engine shutting down.\n";
-    delete instance;
-    delete main_window;
 }
 
 void Engine::begin_frame() {

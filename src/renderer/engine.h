@@ -3,17 +3,21 @@
 #include "engine.h"
 #include "vulkan_instance.h"
 #include "../window/window.h"
+#include <memory>
 
 class Engine {
 public:
-    void init(uint32_t width, uint32_t height);
-    void cleanup();
+    Engine(uint32_t width, uint32_t height);
+    ~Engine();
+
+    Engine(const Engine&) = delete;
+    Engine& operator=(const Engine&) = delete;
 
     void begin_frame();
     void end_frame();
 
     bool should_close() const;
 private:
-    Window* main_window = nullptr;
-    VulkanInstance* instance = nullptr;
+    std::unique_ptr<Window> main_window;
+    std::unique_ptr<VulkanInstance> instance;
 };
