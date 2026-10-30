@@ -15,6 +15,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Vulkan
+        uses: jakoch/install-vulkan-sdk-action@v1
+        with:
+          install_runtime: true
+          install_lavapipe: true
+
       - name: Setup dependencies
         run: .\setup_dependencies.bat
 
@@ -23,6 +29,9 @@ jobs:
 
       - name: Build Renderer
         run: cmake --build build/Renderer --config Release
+      
+      - name: Run Tests
+        run: ctest --test-dir build/Renderer -C Release --output-on-failure
 
       - name: Upload Renderer
         uses: actions/upload-artifact@v4
