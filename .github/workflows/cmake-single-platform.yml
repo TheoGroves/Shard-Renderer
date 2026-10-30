@@ -3,9 +3,9 @@ name: ShardRenderer CI
 
 on:
   push:
-    branches: [main]
+    branches: [experimental]
   pull_request:
-    branches: [main]
+    branches: [experimental]
 
 jobs:
   build:
