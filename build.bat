@@ -1,3 +1,20 @@
-cmake -S . -B build -G "Visual Studio 18 2026"
-cmake --build build --config Release
-timeout /t 5
+@echo off
+setlocal
+
+echo Configuring renderer...
+
+cmake -S . -B build/Renderer
+if errorlevel 1 exit /b 1
+
+echo Renderer config successful.
+
+echo Building renderer...
+
+cmake --build build/Renderer --config Release
+if errorlevel 1 exit /b 1
+
+echo.
+echo Build successful.
+
+endlocal
+exit /b 0
