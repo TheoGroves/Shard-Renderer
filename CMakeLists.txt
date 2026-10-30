@@ -1,77 +1,46 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.24)
 
-project(shard_render_engine LANGUAGES CXX)
+project(ShardRenderer LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(DEPS_DIR ${CMAKE_SOURCE_DIR}/dependencies)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 
-include_directories(
-    ${DEPS_DIR}/include
+add_subdirectory(dependencies/GLFW)
+
+set(VULKAN_INCLUDE_DIR
+    "${CMAKE_SOURCE_DIR}/dependencies/Vulkan/include"
 )
 
-link_directories(
-    ${DEPS_DIR}/lib
+set(VULKAN_LOADER_DIR
+    "${CMAKE_SOURCE_DIR}/dependencies/VulkanLoader/install"
 )
 
-execute_process(
-    COMMAND python -c "import pybind11; print(pybind11.get_cmake_dir())"
-    OUTPUT_VARIABLE PYBIND11_AUTO_DIR
-    OUTPUT_STRIP_TRAILING_WHITESPACE
+find_library(VULKAN_LIBRARY
+    NAMES vulkan-1
+    PATHS "${VULKAN_LOADER_DIR}/lib"
+    NO_DEFAULT_PATH
+    REQUIRED
 )
 
-if(PYBIND11_AUTO_DIR)
-    set(pybind11_DIR "${PYBIND11_AUTO_DIR}")
-endif()
+add_executable(ShardRenderer
+    src/main.cpp
 
-set(PYBIND11_FINDPYTHON ON)
-find_package(pybind11 REQUIRED)
-
-add_library(renderer_core STATIC
-    src/Core/Engine.cpp
-    src/Rendering/Window.cpp
-    src/Rendering/Shader.cpp
-    src/Rendering/ShadowMapper.cpp
+    src/renderer/engine.cpp
+    src/renderer/vulkan_instance.cpp
+    
+    src/window/window.cpp
 )
 
-target_include_directories(renderer_core PUBLIC
-    ${CMAKE_SOURCE_DIR}/src
+target_include_directories(ShardRenderer PRIVATE
+    "${VULKAN_INCLUDE_DIR}"
 )
 
-pybind11_add_module(shard_render_engine
-    src/Bindings/RendererBindings.cpp
-)
-
-target_link_libraries(shard_render_engine PRIVATE
-    renderer_core
-)
-
-if (WIN32)
-    if (EXISTS "${DEPS_DIR}/lib/libglew32.a")
-        set(GLEW_LIB glew32)
-    elseif (EXISTS "${DEPS_DIR}/lib/glew32s.lib")
-        set(GLEW_LIB glew32s)
-        target_compile_definitions(renderer_core PRIVATE GLEW_STATIC)
-    else()
-        message(FATAL_ERROR "GLEW not found.")
-    endif()
-
-    target_link_libraries(renderer_core PRIVATE
-        glfw3
-        ${GLEW_LIB}
-        opengl32
-        user32
-        gdi32
-        shell32
-    )
-
-    target_compile_definitions(renderer_core PRIVATE
-        GLEW_STATIC
-    )
-endif()
-
-set_target_properties(shard_render_engine PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/shard_renderer"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/shard_renderer"
+target_link_libraries(ShardRenderer PRIVATE
+    glfw
+    "${VULKAN_LIBRARY}"
 )
