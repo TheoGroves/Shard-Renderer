@@ -39,7 +39,8 @@ find_library(VULKAN_LIBRARY
 # Renderer library
 add_library(Renderer STATIC
     src/renderer/engine.cpp
-    src/renderer/vulkan_instance.cpp
+    src/renderer/vk/vulkan_instance.cpp
+    src/renderer/vk/physical_device.cpp
     src/window/window.cpp
 )
 
