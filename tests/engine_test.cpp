@@ -69,3 +69,31 @@ TEST_F(EngineTest, CanBeginAndEndFrame) {
     EXPECT_NO_THROW(engine.begin_frame());
     EXPECT_NO_THROW(engine.end_frame());
 }
+
+TEST_F(EngineTest, ThrowOnOpeningFrameWhilePreviousFrameStillOpen) {
+    Engine engine(1280, 720);
+    EXPECT_NO_THROW(engine.begin_frame());
+    EXPECT_THROW(engine.begin_frame(), std::runtime_error);
+}
+
+TEST_F(EngineTest, ThrowOnEndingFrameBeforeAnyFrameOpened) {
+    Engine engine(1280, 720);
+    EXPECT_THROW(engine.end_frame(), std::runtime_error);
+}
+
+TEST_F(EngineTest, ThrowOnEndingFrameTwice) {
+    Engine engine(1280, 720);
+    EXPECT_NO_THROW(engine.begin_frame());
+    EXPECT_NO_THROW(engine.end_frame());
+    EXPECT_THROW(engine.end_frame(), std::runtime_error);
+}
+
+TEST_F(EngineTest, CanBeginNewFrameAfterEndingPrevious) {
+    Engine engine(1280, 720);
+
+    engine.begin_frame();
+    engine.end_frame();
+    
+    EXPECT_NO_THROW(engine.begin_frame());
+    EXPECT_NO_THROW(engine.end_frame());
+}

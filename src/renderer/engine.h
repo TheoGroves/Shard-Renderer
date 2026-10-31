@@ -23,4 +23,6 @@ public:
 private:
     std::unique_ptr<Window> main_window;
     std::unique_ptr<VulkanInstance> instance;
+
+    bool frame_open = false;
 };
