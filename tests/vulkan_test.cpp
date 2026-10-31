@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
-#include "../src/renderer/vulkan_instance.h"
+#include "../src/renderer/vk/vulkan_instance.h"
+#include "../src/renderer/vk/physical_device.h"
 #include <GLFW/glfw3.h>
 #include <type_traits>
 
@@ -56,5 +57,17 @@ TEST(VulkanInstanceTests, IsNotCopyConstructible) {
 TEST(VulkanInstanceTests, IsNotCopyAssignable) {
     EXPECT_FALSE(
         std::is_copy_assignable_v<VulkanInstance>
+    );
+}
+
+TEST(PhysicalDeviceTests, IsNotCopyConstructible) {
+    EXPECT_FALSE(
+        std::is_copy_constructible_v<PhysicalDevice>
+    );
+}
+
+TEST(PhysicalDeviceTests, IsNotCopyAssignable) {
+    EXPECT_FALSE(
+        std::is_copy_assignable_v<PhysicalDevice>
     );
 }

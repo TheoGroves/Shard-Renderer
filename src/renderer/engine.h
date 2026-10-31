@@ -1,6 +1,7 @@
 #pragma once
 
-#include "vulkan_instance.h"
+#include "vk/vulkan_instance.h"
+#include "vk/physical_device.h"
 #include "../window/window.h"
 #include <memory>
 
