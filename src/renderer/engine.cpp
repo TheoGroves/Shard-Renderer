@@ -5,7 +5,8 @@
 Engine::Engine(uint32_t width, uint32_t height) {
     main_window = std::make_unique<Window>(width, height, "ShardRenderer");
     instance = std::make_unique<VulkanInstance>();
-    physical_device = std::make_unique<PhysicalDevice>(instance->get_handle());
+    surface = std::make_unique<Surface>(instance->get_handle(), main_window->get_handle());
+    physical_device = std::make_unique<PhysicalDevice>(instance->get_handle(), surface->get_handle());
 }
 
 Engine::~Engine() {

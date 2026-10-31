@@ -41,6 +41,7 @@ add_library(Renderer STATIC
     src/renderer/engine.cpp
     src/renderer/vk/vulkan_instance.cpp
     src/renderer/vk/physical_device.cpp
+    src/renderer/vk/surface.cpp
     src/window/window.cpp
 )
 
