@@ -16,5 +16,17 @@ public:
 private:
     VkInstance handle = VK_NULL_HANDLE;
 
+    VkDebugUtilsMessengerEXT debug_messenger = VK_NULL_HANDLE;
+
     void create_instance();
+    void setup_debug_messenger();
+
+    static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(
+        VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
+        VkDebugUtilsMessageTypeFlagsEXT message_type,
+        const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
+        void* user_data
+    );
+
+    VkDebugUtilsMessengerCreateInfoEXT get_debug_messenger_info() const;
 };
