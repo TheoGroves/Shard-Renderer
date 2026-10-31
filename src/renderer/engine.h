@@ -20,9 +20,11 @@ public:
 
     GLFWwindow* get_window_handle();
     VkInstance get_vk_handle();
+    VkPhysicalDevice get_device_handle();
 private:
     std::unique_ptr<Window> main_window;
     std::unique_ptr<VulkanInstance> instance;
+    std::unique_ptr<PhysicalDevice> physical_device;
 
     bool frame_open = false;
 };

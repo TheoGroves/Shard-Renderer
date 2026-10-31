@@ -121,7 +121,7 @@ void PhysicalDevice::pick_physical_device(VkInstance instance) {
 
     vkGetPhysicalDeviceProperties(handle, &selected_properties);
 
-    std::cout << "\nSelected GPU:" << selected_properties.deviceName << '\n';
+    std::cout << "\nSelected GPU: " << selected_properties.deviceName << '\n';
 }
 
 VkPhysicalDevice PhysicalDevice::get_handle() const {

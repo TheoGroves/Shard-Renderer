@@ -5,6 +5,7 @@
 Engine::Engine(uint32_t width, uint32_t height) {
     main_window = std::make_unique<Window>(width, height, "ShardRenderer");
     instance = std::make_unique<VulkanInstance>();
+    physical_device = std::make_unique<PhysicalDevice>(instance->get_handle());
 }
 
 Engine::~Engine() {
@@ -36,4 +37,8 @@ GLFWwindow* Engine::get_window_handle() {
 
 VkInstance Engine::get_vk_handle() {
     return instance->get_handle();
+}
+
+VkPhysicalDevice Engine::get_device_handle() {
+    return physical_device->get_handle();
 }
