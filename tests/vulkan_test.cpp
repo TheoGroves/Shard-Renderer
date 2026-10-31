@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "../src/renderer/vulkan_instance.h"
-#include <type_traits>
 #include <GLFW/glfw3.h>
+#include <type_traits>
 
 class VulkanInstanceTest : public ::testing::Test {
 protected:

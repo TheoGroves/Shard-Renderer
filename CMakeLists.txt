@@ -66,14 +66,16 @@ target_link_libraries(ShardRenderer PRIVATE
 # Tests
 enable_testing()
 
-add_executable(VulkanTests
+add_executable(Tests
     tests/vulkan_test.cpp
+    tests/window_test.cpp
+    tests/engine_test.cpp
 )
 
-target_link_libraries(VulkanTests PRIVATE
+target_link_libraries(Tests PRIVATE
     Renderer
     GTest::gtest_main
 )
 
 include(GoogleTest)
-gtest_discover_tests(VulkanTests)
+gtest_discover_tests(Tests)

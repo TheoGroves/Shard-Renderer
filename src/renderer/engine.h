@@ -17,6 +17,9 @@ public:
     void end_frame();
 
     bool should_close() const;
+
+    GLFWwindow* get_window_handle();
+    VkInstance get_vk_handle();
 private:
     std::unique_ptr<Window> main_window;
     std::unique_ptr<VulkanInstance> instance;

@@ -3,6 +3,13 @@
 #include <stdexcept>
 
 Window::Window(uint32_t width, uint32_t height, const std::string& title) {
+    if (width <= 0) {
+        throw std::runtime_error("Window width must be greater than zero.");
+    }
+    if (height <= 0) {
+        throw std::runtime_error("Window height must be greater than zero.");
+    }
+
     if (!glfwInit()) {
         throw std::runtime_error("Failed to initialize GLFW");
     }
