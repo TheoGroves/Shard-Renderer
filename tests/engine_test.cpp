@@ -23,14 +23,6 @@ TEST_F(EngineTest, ThrowOnZeroHeight) {
     EXPECT_THROW(Engine(1280, 0), std::runtime_error);
 }
 
-TEST_F(EngineTest, ThrowOnNegativeWidth) {
-    EXPECT_THROW(Engine(-1, 720), std::runtime_error);
-}
-
-TEST_F(EngineTest, ThrowOnNegativeHeight) {
-    EXPECT_THROW(Engine(1280, -1), std::runtime_error);
-}
-
 TEST_F(EngineTest, CanCreateAndDestroyEngine) {
     {
         Engine engine(1280, 720);

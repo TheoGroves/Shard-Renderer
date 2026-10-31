@@ -1,6 +1,5 @@
 #pragma once
 
-#include "engine.h"
 #include "vulkan_instance.h"
 #include "../window/window.h"
 #include <memory>

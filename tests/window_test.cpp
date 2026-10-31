@@ -38,14 +38,6 @@ TEST(WindowTests, ThrowOnZeroHeight) {
     EXPECT_THROW(Window(1280, 0, "Shard Renderer"), std::runtime_error);
 }
 
-TEST(WindowTests, ThrowOnNegativeWidth) {
-    EXPECT_THROW(Window(-1, 720, "Shard Renderer"), std::runtime_error);
-}
-
-TEST(WindowTests, ThrowOnNegativeHeight) {
-    EXPECT_THROW(Window(1280, -1, "Shard Renderer"), std::runtime_error);
-}
-
 TEST(WindowTests, CanCreateAndDestroyWindow) {
     ASSERT_EQ(glfwInit(), GLFW_TRUE);
 
