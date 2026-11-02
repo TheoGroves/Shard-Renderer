@@ -4,6 +4,8 @@
 #include "vk/physical_device.h"
 #include "vk/logical_device.h"
 #include "vk/surface.h"
+#include "vk/swapchain.h"
+#include "vk/swapchain_image_views.h"
 #include "../window/window.h"
 #include <memory>
 
@@ -29,6 +31,8 @@ private:
     std::unique_ptr<Surface> surface;
     std::unique_ptr<PhysicalDevice> physical_device;
     std::unique_ptr<LogicalDevice> logical_device;
+    std::unique_ptr<Swapchain> swapchain;
+    std::unique_ptr<SwapchainImageViews> swapchain_image_views;
 
     bool frame_open = false;
 };

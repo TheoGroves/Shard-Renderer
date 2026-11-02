@@ -43,6 +43,7 @@ add_library(Renderer STATIC
     src/renderer/vk/physical_device.cpp
     src/renderer/vk/logical_device.cpp
     src/renderer/vk/surface.cpp
+    src/renderer/vk/swapchain.cpp
     src/window/window.cpp
 )
 

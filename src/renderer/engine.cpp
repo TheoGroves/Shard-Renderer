@@ -8,6 +8,8 @@ Engine::Engine(uint32_t width, uint32_t height) {
     surface = std::make_unique<Surface>(instance->get_handle(), main_window->get_handle());
     physical_device = std::make_unique<PhysicalDevice>(instance->get_handle(), surface->get_handle());
     logical_device = std::make_unique<LogicalDevice>(*physical_device);
+    swapchain = std::make_unique<Swapchain>(*physical_device, *logical_device, *surface, *main_window);
+    swapchain_image_views = std::make_unique<SwapchainImageViews>(*logical_device, *swapchain);
 }
 
 Engine::~Engine() {
