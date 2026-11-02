@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <vector>
+#include <cstring>
 
 namespace {
 
@@ -91,6 +92,11 @@ void PhysicalDevice::pick_physical_device(VkInstance instance, VkSurfaceKHR surf
             continue;
         }
 
+        if (!check_device_extension_support(device)) {
+            std::cout << "\nSkipping GPU: Missing required device extensions.\n";
+            continue;
+        }
+
         int score = rate_device(properties, memory_properties);
 
         std::cout << "\nFound suitable Vulkan GPU:\n";
@@ -149,6 +155,39 @@ VkPhysicalDevice PhysicalDevice::get_handle() const {
 
 const QueueFamilyIndices& PhysicalDevice::get_queue_family_indices() const {
     return queue_family_indices;
+}
+
+bool PhysicalDevice::check_device_extension_support(VkPhysicalDevice device) const {
+    uint32_t extension_count = 0;
+
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, nullptr);
+
+    std::vector<VkExtensionProperties> available_extensions(extension_count);
+
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, available_extensions.data());
+
+    const std::vector<const char*> required_extensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+
+    for (const char* required : required_extensions) {
+        bool found = false;
+        
+        for (const auto& available : available_extensions) {
+            found = false;
+
+            for (const auto& available : available_extensions) {
+                if (strcmp(required, available.extensionName) == 0) {
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        if (!found) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 QueueFamilyIndices PhysicalDevice::find_queue_families(VkPhysicalDevice device, VkSurfaceKHR surface) {

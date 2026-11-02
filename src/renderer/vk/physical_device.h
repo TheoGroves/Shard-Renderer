@@ -15,6 +15,8 @@ public:
 
     const QueueFamilyIndices& get_queue_family_indices() const;
 
+    bool check_device_extension_support(VkPhysicalDevice device) const;
+
 private:
     VkPhysicalDevice handle = VK_NULL_HANDLE;
 

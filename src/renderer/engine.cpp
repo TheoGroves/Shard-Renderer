@@ -7,6 +7,7 @@ Engine::Engine(uint32_t width, uint32_t height) {
     instance = std::make_unique<VulkanInstance>();
     surface = std::make_unique<Surface>(instance->get_handle(), main_window->get_handle());
     physical_device = std::make_unique<PhysicalDevice>(instance->get_handle(), surface->get_handle());
+    logical_device = std::make_unique<LogicalDevice>(*physical_device);
 }
 
 Engine::~Engine() {

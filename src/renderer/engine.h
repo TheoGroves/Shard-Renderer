@@ -2,6 +2,7 @@
 
 #include "vk/vulkan_instance.h"
 #include "vk/physical_device.h"
+#include "vk/logical_device.h"
 #include "vk/surface.h"
 #include "../window/window.h"
 #include <memory>
@@ -27,6 +28,7 @@ private:
     std::unique_ptr<VulkanInstance> instance;
     std::unique_ptr<Surface> surface;
     std::unique_ptr<PhysicalDevice> physical_device;
+    std::unique_ptr<LogicalDevice> logical_device;
 
     bool frame_open = false;
 };
