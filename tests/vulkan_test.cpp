@@ -59,15 +59,3 @@ TEST(VulkanInstanceTests, IsNotCopyAssignable) {
         std::is_copy_assignable_v<VulkanInstance>
     );
 }
-
-TEST(PhysicalDeviceTests, IsNotCopyConstructible) {
-    EXPECT_FALSE(
-        std::is_copy_constructible_v<PhysicalDevice>
-    );
-}
-
-TEST(PhysicalDeviceTests, IsNotCopyAssignable) {
-    EXPECT_FALSE(
-        std::is_copy_assignable_v<PhysicalDevice>
-    );
-}

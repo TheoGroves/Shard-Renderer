@@ -74,6 +74,7 @@ add_executable(Tests
     tests/window_test.cpp
     tests/engine_test.cpp
     tests/logical_device_test.cpp
+    tests/physical_device_test.cpp
 )
 
 target_link_libraries(Tests PRIVATE

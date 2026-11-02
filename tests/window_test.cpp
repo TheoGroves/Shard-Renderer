@@ -10,7 +10,7 @@ protected:
     void SetUp() override {
         ASSERT_EQ(glfwInit(), GLFW_TRUE);
 
-        window = new Window(1280, 720, "Shard Renderer");
+        window = new Window(1280, 720, "Window Test");
     }
 
     void TearDown() override {
@@ -31,18 +31,18 @@ TEST_F(WindowTest, ReturnsConsistentWindow) {
 }
 
 TEST(WindowTests, ThrowOnZeroWidth) {
-    EXPECT_THROW(Window(0, 720, "Shard Renderer"), std::runtime_error);
+    EXPECT_THROW(Window(0, 720, "Window Test"), std::runtime_error);
 }
 
 TEST(WindowTests, ThrowOnZeroHeight) {
-    EXPECT_THROW(Window(1280, 0, "Shard Renderer"), std::runtime_error);
+    EXPECT_THROW(Window(1280, 0, "Window Test"), std::runtime_error);
 }
 
 TEST(WindowTests, CanCreateAndDestroyWindow) {
     ASSERT_EQ(glfwInit(), GLFW_TRUE);
 
     {
-        Window window(1280, 720, "Shard Renderer");
+        Window window(1280, 720, "Window Test");
 
         ASSERT_NE(window.get_handle(), nullptr);
     }
