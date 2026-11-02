@@ -44,6 +44,7 @@ add_library(Renderer STATIC
     src/renderer/vk/logical_device.cpp
     src/renderer/vk/surface.cpp
     src/renderer/vk/swapchain.cpp
+    src/renderer/vk/swapchain_image_views.cpp
     src/window/window.cpp
 )
 
@@ -76,6 +77,8 @@ add_executable(Tests
     tests/engine_test.cpp
     tests/logical_device_test.cpp
     tests/physical_device_test.cpp
+    tests/swapchain_test.cpp
+    tests/swapchain_image_views_test.cpp
 )
 
 target_link_libraries(Tests PRIVATE
