@@ -172,13 +172,9 @@ bool PhysicalDevice::check_device_extension_support(VkPhysicalDevice device) con
         bool found = false;
         
         for (const auto& available : available_extensions) {
-            found = false;
-
-            for (const auto& available : available_extensions) {
-                if (strcmp(required, available.extensionName) == 0) {
-                    found = true;
-                    break;
-                }
+            if (strcmp(required, available.extensionName) == 0) {
+                found = true;
+                break;
             }
         }
 
