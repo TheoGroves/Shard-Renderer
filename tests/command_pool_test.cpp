@@ -23,7 +23,7 @@ protected:
 
     void SetUp() override {
         instance = std::make_unique<VulkanInstance>();
-        window = std::make_unique<Window>(context, 1280, 720, "Image Views Test");
+        window = std::make_unique<Window>(context, 1280, 720, "Command Pool Test");
         surface = std::make_unique<Surface>(instance->get_handle(), window->get_handle());
         physical_device = std::make_unique<PhysicalDevice>(instance->get_handle(), surface->get_handle());
         logical_device = std::make_unique<LogicalDevice>(*physical_device);
