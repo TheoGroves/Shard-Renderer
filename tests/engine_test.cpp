@@ -7,7 +7,7 @@
 
 class EngineTest : public ::testing::Test {
 protected:
-    GlfwContext context;
+    Engine engine = Engine(1280, 720);
 };
 
 TEST_F(EngineTest, ThrowOnZeroWidth) {
@@ -18,7 +18,7 @@ TEST_F(EngineTest, ThrowOnZeroHeight) {
     EXPECT_THROW(Engine(1280, 0), std::runtime_error);
 }
 
-TEST_F(EngineTest, CanCreateAndDestroyEngine) {
+TEST(EngineTests, CanCreateAndDestroyEngine) {
     {
         Engine engine(1280, 720);
 
@@ -47,37 +47,30 @@ TEST(EngineTests, IsNotCopyAssignable) {
 }
 
 TEST_F(EngineTest, ShouldNotCloseOnCreation) {
-    Engine engine(1280, 720);
     EXPECT_FALSE(engine.should_close());
 }
 
 TEST_F(EngineTest, CanBeginAndEndFrame) {
-    Engine engine(1280, 720);
     EXPECT_NO_THROW(engine.begin_frame());
     EXPECT_NO_THROW(engine.end_frame());
 }
 
 TEST_F(EngineTest, ThrowOnOpeningFrameWhilePreviousFrameStillOpen) {
-    Engine engine(1280, 720);
     EXPECT_NO_THROW(engine.begin_frame());
     EXPECT_THROW(engine.begin_frame(), std::runtime_error);
 }
 
 TEST_F(EngineTest, ThrowOnEndingFrameBeforeAnyFrameOpened) {
-    Engine engine(1280, 720);
     EXPECT_THROW(engine.end_frame(), std::runtime_error);
 }
 
 TEST_F(EngineTest, ThrowOnEndingFrameTwice) {
-    Engine engine(1280, 720);
     EXPECT_NO_THROW(engine.begin_frame());
     EXPECT_NO_THROW(engine.end_frame());
     EXPECT_THROW(engine.end_frame(), std::runtime_error);
 }
 
 TEST_F(EngineTest, CanBeginNewFrameAfterEndingPrevious) {
-    Engine engine(1280, 720);
-
     engine.begin_frame();
     engine.end_frame();
     
