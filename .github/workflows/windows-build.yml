@@ -24,14 +24,14 @@ jobs:
       - name: Setup dependencies
         run: .\setup_dependencies.bat
 
-      - name: Compile shaders
-        run: .\compile_shaders.bat
-
       - name: Verify Vulkan tools
         run: |
           glslc --version
           glslangValidator --version
           spirv-val --version
+
+      - name: Compile shaders
+        run: .\compile_shaders.bat
 
       - name: Configure CMake
         run: cmake -S . -B build/Renderer
