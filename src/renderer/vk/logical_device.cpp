@@ -14,6 +14,8 @@ const std::vector<const char*> device_extensions = {
 }
 
 LogicalDevice::LogicalDevice(const PhysicalDevice& physical_device) {
+    queue_family_indices = physical_device.get_queue_family_indices();
+
     create_logical_device(physical_device);
     retrieve_queues(physical_device);
 }
@@ -99,4 +101,8 @@ VkQueue LogicalDevice::get_graphics_queue() const {
 
 VkQueue LogicalDevice::get_present_queue() const {
     return present_queue;
+}
+
+const QueueFamilyIndices& LogicalDevice::get_queue_family_indices() const {
+    return queue_family_indices;
 }

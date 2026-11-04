@@ -12,6 +12,7 @@ Engine::Engine(uint32_t width, uint32_t height) {
     logical_device = std::make_unique<LogicalDevice>(*physical_device);
     swapchain = std::make_unique<Swapchain>(*physical_device, *logical_device, *surface, *main_window);
     swapchain_image_views = std::make_unique<SwapchainImageViews>(*logical_device, *swapchain);
+    command_pool = std::make_unique<CommandPool>(*logical_device);
 }
 
 Engine::~Engine() {

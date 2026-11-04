@@ -6,6 +6,7 @@
 #include "vk/surface.h"
 #include "vk/swapchain.h"
 #include "vk/swapchain_image_views.h"
+#include "vk/command_pool.h"
 #include "window/window.h"
 #include "glfw_context.h"
 #include <memory>
@@ -35,6 +36,7 @@ private:
     std::unique_ptr<LogicalDevice> logical_device;
     std::unique_ptr<Swapchain> swapchain;
     std::unique_ptr<SwapchainImageViews> swapchain_image_views;
+    std::unique_ptr<CommandPool> command_pool;
 
     bool frame_open = false;
 };

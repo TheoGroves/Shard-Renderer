@@ -17,11 +17,15 @@ public:
     VkQueue get_graphics_queue() const;
     VkQueue get_present_queue() const;
 
+    const QueueFamilyIndices& get_queue_family_indices() const;
+
 private:
     VkDevice handle = VK_NULL_HANDLE;
 
     VkQueue graphics_queue = VK_NULL_HANDLE;
     VkQueue present_queue = VK_NULL_HANDLE;
+
+    QueueFamilyIndices queue_family_indices;
 
     void create_logical_device(const PhysicalDevice& physical_device);
     void retrieve_queues(const PhysicalDevice& physical_device);
