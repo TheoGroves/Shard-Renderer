@@ -9,6 +9,7 @@
 #include "vk/command_pool.h"
 #include "vk/command_buffers.h"
 #include "vk/synchronization.h"
+#include "vk/graphics_pipeline.h"
 #include "window/window.h"
 #include "glfw_context.h"
 #include <memory>
@@ -41,6 +42,7 @@ private:
     std::unique_ptr<CommandPool> command_pool;
     std::unique_ptr<CommandBuffers> command_buffers;
     std::unique_ptr<Synchronization> synchronization;
+    std::unique_ptr<GraphicsPipeline> graphics_pipeline;
 
     bool frame_open = false;
 
@@ -56,4 +58,6 @@ private:
 
     void submit_command_buffer();
     void present_image();
+
+    void set_viewport_and_scissor(VkCommandBuffer command_buffer);
 };

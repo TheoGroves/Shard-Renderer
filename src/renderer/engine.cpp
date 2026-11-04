@@ -14,6 +14,7 @@ Engine::Engine(uint32_t width, uint32_t height) {
     logical_device = std::make_unique<LogicalDevice>(*physical_device);
     swapchain = std::make_unique<Swapchain>(*physical_device, *logical_device, *surface, *main_window);
     swapchain_image_views = std::make_unique<SwapchainImageViews>(*logical_device, *swapchain);
+    graphics_pipeline = std::make_unique<GraphicsPipeline>(*logical_device, *swapchain, "shaders/triangle.vert.spv", "shaders/triangle.frag.spv");
     command_pool = std::make_unique<CommandPool>(*logical_device);
     command_buffers = std::make_unique<CommandBuffers>(*logical_device, *command_pool, 1);
     synchronization = std::make_unique<Synchronization>(*logical_device, static_cast<uint32_t>(swapchain->get_images().size()));
@@ -103,7 +104,18 @@ void Engine::record_command_buffer() {
 
     begin_rendering(command_buffer);
 
-    // TODO: Rendering commands here
+    set_viewport_and_scissor(command_buffer);
+
+    graphics_pipeline->bind(command_buffer);
+
+    // Draw triangle
+    vkCmdDraw(
+        command_buffer,
+        3,
+        1,
+        0,
+        0
+    );
 
     end_rendering(command_buffer);
 
@@ -243,4 +255,25 @@ void Engine::present_image() {
     if (result != VK_SUCCESS) {
         throw std::runtime_error("Failed to present swapchain image.");
     }
+}
+
+void Engine::set_viewport_and_scissor(VkCommandBuffer command_buffer) {
+    VkExtent2D extent = swapchain->get_extent();
+
+    VkViewport viewport{};
+
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = static_cast<float>(extent.width);
+    viewport.height = static_cast<float>(extent.height);
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+    
+    vkCmdSetViewport(command_buffer, 0, 1, &viewport);
+
+    VkRect2D scissor{};
+    scissor.offset = { 0, 0 };
+    scissor.extent = extent;
+
+    vkCmdSetScissor(command_buffer, 0, 1, &scissor);
 }

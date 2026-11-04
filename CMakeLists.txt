@@ -49,6 +49,7 @@ add_library(Renderer STATIC
     src/renderer/vk/command_pool.cpp
     src/renderer/vk/command_buffers.cpp
     src/renderer/vk/synchronization.cpp
+    src/renderer/vk/graphics_pipeline.cpp
     src/renderer/window/window.cpp
 )
 
@@ -87,6 +88,7 @@ add_executable(Tests
     tests/command_pool_test.cpp
     tests/command_buffers_test.cpp
     tests/synchronization_test.cpp
+    tests/graphics_pipeline_test.cpp
 )
 
 target_link_libraries(Tests PRIVATE
@@ -96,3 +98,10 @@ target_link_libraries(Tests PRIVATE
 
 include(GoogleTest)
 gtest_discover_tests(Tests)
+
+# Copy shaders to compiled directory
+add_custom_command(TARGET ShardRenderer POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/shaders"
+        "$<TARGET_FILE_DIR:ShardRenderer>/shaders"
+)

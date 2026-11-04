@@ -63,6 +63,7 @@ void LogicalDevice::create_logical_device(const PhysicalDevice& physical_device)
     features13.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
 
     VkPhysicalDeviceFeatures2 features2{};
+    features2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
     features2.pNext = &features13;
 
     vkGetPhysicalDeviceFeatures2(physical_device.get_handle(), &features2);

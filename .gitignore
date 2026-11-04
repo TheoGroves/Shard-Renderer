@@ -56,3 +56,6 @@ cmake_install.cmake
 renderer_config.ini
 
 dependencies/
+
+# Generated shaders
+*.spv
