@@ -4,10 +4,14 @@
 #include <string>
 #include <iostream>
 
-Synchronization::Synchronization(const LogicalDevice& logical_device) {
+Synchronization::Synchronization(const LogicalDevice& logical_device, uint32_t swapchain_image_count) {
     device = logical_device.get_handle();
 
-    create_semaphores();
+    if (swapchain_image_count == 0) {
+        throw std::runtime_error("Swapchain image count must be greater than zero.");
+    }
+
+    create_semaphores(swapchain_image_count);
     create_fence();
 }
 
@@ -16,8 +20,10 @@ Synchronization::~Synchronization() {
         vkDestroyFence(device, in_flight_fence, nullptr);
     }
 
-    if (render_finished_semaphore != VK_NULL_HANDLE) {
-        vkDestroySemaphore(device, render_finished_semaphore, nullptr);
+    for (VkSemaphore semaphore : render_finished_semaphores) {
+        if (semaphore != VK_NULL_HANDLE) {
+            vkDestroySemaphore(device, semaphore, nullptr);
+        }
     }
 
     if (image_available_semaphore != VK_NULL_HANDLE) {
@@ -25,7 +31,7 @@ Synchronization::~Synchronization() {
     }
 }
 
-void Synchronization::create_semaphores() {
+void Synchronization::create_semaphores(uint32_t swapchain_image_count) {
     VkSemaphoreCreateInfo create_info{};
 
     create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -36,10 +42,14 @@ void Synchronization::create_semaphores() {
         throw std::runtime_error("Failed to create image available semaphore: " + std::to_string(static_cast<int>(result)));
     }
 
-    result = vkCreateSemaphore(device, &create_info, nullptr, &render_finished_semaphore);
+    render_finished_semaphores.resize(swapchain_image_count, VK_NULL_HANDLE);
 
-    if (result != VK_SUCCESS) {
-        throw std::runtime_error("Failed to create render finished semaphore: " + std::to_string(static_cast<int>(result)));
+    for (auto& semaphore : render_finished_semaphores) {
+        result = vkCreateSemaphore(device, &create_info, nullptr, &semaphore);
+    
+        if (result != VK_SUCCESS) {
+            throw std::runtime_error("Failed to create render finished semaphore: " + std::to_string(static_cast<int>(result)));
+        }
     }
 
     std::cout << "Vulkan sempahores created successfully.\n";
@@ -63,8 +73,12 @@ VkSemaphore Synchronization::get_image_available_semaphore() const {
     return image_available_semaphore;
 }
 
-VkSemaphore Synchronization::get_render_finished_semaphore() const {
-    return render_finished_semaphore;
+VkSemaphore Synchronization::get_render_finished_semaphore(uint32_t image_index) const {
+    if (image_index >= render_finished_semaphores.size()) {
+        throw std::runtime_error("Invalid swapchain image index.");
+    }
+    
+    return render_finished_semaphores[image_index];
 }
 
 VkFence Synchronization::get_in_flight_fence() const {

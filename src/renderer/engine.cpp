@@ -2,6 +2,8 @@
 #include "glfw_context.h"
 #include <iostream>
 #include <stdexcept>
+#include <array>
+#include <cstdint>
 
 Engine::Engine(uint32_t width, uint32_t height) {
     context = std::make_shared<GlfwContext>();
@@ -14,7 +16,7 @@ Engine::Engine(uint32_t width, uint32_t height) {
     swapchain_image_views = std::make_unique<SwapchainImageViews>(*logical_device, *swapchain);
     command_pool = std::make_unique<CommandPool>(*logical_device);
     command_buffers = std::make_unique<CommandBuffers>(*logical_device, *command_pool, 1);
-    synchronization = std::make_unique<Synchronization>(*logical_device);
+    synchronization = std::make_unique<Synchronization>(*logical_device, static_cast<uint32_t>(swapchain->get_images().size()));
 }
 
 Engine::~Engine() {
@@ -47,6 +49,8 @@ void Engine::end_frame() {
     }
 
     record_command_buffer();
+    submit_command_buffer();
+    present_image();
 
     frame_open = false;
 }
@@ -93,7 +97,150 @@ void Engine::record_command_buffer() {
     command_buffers->reset(command_buffer);
     command_buffers->begin(command_buffer);
 
-    // TODO: Dynamic rendering commands
+    VkImage image = swapchain->get_images()[current_image_index];
+
+    transition_image_layout(command_buffer, image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+
+    begin_rendering(command_buffer);
+
+    // TODO: Rendering commands here
+
+    end_rendering(command_buffer);
+
+    transition_image_layout(command_buffer, image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
     command_buffers->end(command_buffer);
+}
+
+void Engine::transition_image_layout(VkCommandBuffer command_buffer, VkImage image, VkImageLayout old_layout, VkImageLayout new_layout) {
+    VkImageMemoryBarrier barrier{};
+
+    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+
+    barrier.oldLayout = old_layout;
+    barrier.newLayout = new_layout;
+
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+    barrier.image = image;
+
+    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    barrier.subresourceRange.baseMipLevel = 0;
+    barrier.subresourceRange.levelCount = 1;
+    barrier.subresourceRange.baseArrayLayer = 0;
+    barrier.subresourceRange.layerCount = 1;
+
+    VkPipelineStageFlags src_stage;
+    VkPipelineStageFlags dst_stage;
+
+    if (new_layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
+        barrier.srcAccessMask = 0;
+        barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+        src_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+        dst_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    }
+    else if (new_layout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR) {
+        barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        barrier.dstAccessMask = 0;
+
+        src_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dst_stage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    }
+    else {
+        throw std::runtime_error("Unsupported image layout transition.");
+    }
+
+    vkCmdPipelineBarrier(command_buffer, src_stage, dst_stage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+}
+
+void Engine::begin_rendering(VkCommandBuffer command_buffer) {
+    VkRenderingAttachmentInfo color_attachment{};
+    color_attachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+    color_attachment.imageView = swapchain_image_views->get_image_views()[current_image_index];
+    color_attachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    color_attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    color_attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    color_attachment.clearValue.color = {{ 0.05f, 0.05f, 0.15f, 1.0f }};
+
+    VkRenderingInfo rendering_info{};
+    rendering_info.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+    rendering_info.renderArea.offset = { 0, 0 };
+    rendering_info.renderArea.extent = swapchain->get_extent();
+    rendering_info.layerCount = 1;
+    rendering_info.colorAttachmentCount = 1;
+    rendering_info.pColorAttachments = &color_attachment;
+
+    vkCmdBeginRendering(command_buffer, &rendering_info);
+}
+
+void Engine::end_rendering(VkCommandBuffer command_buffer) {
+    vkCmdEndRendering(command_buffer);
+}
+
+void Engine::submit_command_buffer() {
+    VkCommandBuffer command_buffer = command_buffers->get_buffers()[0];
+
+    VkSemaphore wait_semaphore = synchronization->get_image_available_semaphore();
+    VkSemaphore signal_semaphore = synchronization->get_render_finished_semaphore(current_image_index);
+    
+    VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+    VkSubmitInfo submit_info{};
+
+    submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    submit_info.waitSemaphoreCount = 1;
+    submit_info.pWaitSemaphores = &wait_semaphore;
+    submit_info.pWaitDstStageMask = &wait_stage;
+
+    submit_info.commandBufferCount = 1;
+    submit_info.pCommandBuffers = &command_buffer;
+
+    submit_info.signalSemaphoreCount = 1;
+    submit_info.pSignalSemaphores = &signal_semaphore;
+
+    VkFence fence = synchronization->get_in_flight_fence();
+
+    VkResult result = vkResetFences(logical_device->get_handle(), 1, &fence);
+
+    if (result != VK_SUCCESS) {
+        throw std::runtime_error("Failed to reset in-flight fence.");
+    }
+
+    result = vkQueueSubmit(logical_device->get_graphics_queue(), 1, &submit_info, fence);
+
+    if (result != VK_SUCCESS) {
+        throw std::runtime_error("Failed to submit command buffer.");
+    }
+}
+
+void Engine::present_image() {
+    VkSemaphore wait_semaphore = synchronization->get_render_finished_semaphore(current_image_index);
+
+    VkSwapchainKHR swapchain_handle = swapchain->get_handle();
+
+    VkPresentInfoKHR present_info{};
+    present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+    present_info.waitSemaphoreCount = 1;
+    present_info.pWaitSemaphores = &wait_semaphore;
+
+    present_info.swapchainCount = 1;
+    present_info.pSwapchains = &swapchain_handle;
+
+    present_info.pImageIndices = &current_image_index;
+
+    VkResult result = vkQueuePresentKHR(logical_device->get_present_queue(), &present_info);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+        throw std::runtime_error("Swapchain needs recreation.");
+    }
+
+    if (result != VK_SUCCESS) {
+        throw std::runtime_error("Failed to present swapchain image.");
+    }
 }

@@ -12,7 +12,7 @@ protected:
 
 TEST_F(GlfwContextTest, CreatesValidWindow) {
     GLFWwindow* window;
-    ASSERT_NO_THROW(window = context.create_window(1280, 720, "GLFW Context Test"), nullptr);
+    ASSERT_NO_THROW(window = context.create_window(1280, 720, "GLFW Context Test"));
     context.destroy_window(window);
 }
 

@@ -5,6 +5,7 @@
 #include "../src/renderer/vk/physical_device.h"
 #include "../src/renderer/vk/logical_device.h"
 #include "../src/renderer/vk/surface.h"
+#include "../src/renderer/vk/swapchain.h"
 #include "../src/renderer/vk/synchronization.h"
 #include "../src/renderer/window/window.h"
 
@@ -19,6 +20,7 @@ protected:
     std::unique_ptr<Surface> surface;
     std::unique_ptr<PhysicalDevice> physical_device;
     std::unique_ptr<LogicalDevice> logical_device;
+    std::unique_ptr<Swapchain> swapchain;
     std::unique_ptr<Synchronization> synchronization;
 
     void SetUp() override {
@@ -27,7 +29,8 @@ protected:
         surface = std::make_unique<Surface>(instance->get_handle(), window->get_handle());
         physical_device = std::make_unique<PhysicalDevice>(instance->get_handle(), surface->get_handle());
         logical_device = std::make_unique<LogicalDevice>(*physical_device);
-        synchronization = std::make_unique<Synchronization>(*logical_device);
+        swapchain = std::make_unique<Swapchain>(*physical_device, *logical_device, *surface, *window);
+        synchronization = std::make_unique<Synchronization>(*logical_device, static_cast<uint32_t>(swapchain->get_images().size()));
     }
 };
 
@@ -40,7 +43,7 @@ TEST_F(SynchronizationTest, CreatesValidImageAvailableSemaphore) {
 }
 
 TEST_F(SynchronizationTest, CreatesValidRenderFinishedSemaphore) {
-    ASSERT_NE(synchronization->get_render_finished_semaphore(), VK_NULL_HANDLE);
+    ASSERT_NE(synchronization->get_render_finished_semaphore(0), VK_NULL_HANDLE);
 }
 
 TEST(SynchronizationTests, IsNotCopyConstructible) {

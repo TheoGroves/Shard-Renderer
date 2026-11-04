@@ -48,4 +48,12 @@ private:
 
     void acquire_next_image();
     void record_command_buffer();
+
+    void transition_image_layout(VkCommandBuffer command_buffer, VkImage image, VkImageLayout old_layout, VkImageLayout new_layout);
+    
+    void begin_rendering(VkCommandBuffer command_buffer);
+    void end_rendering(VkCommandBuffer command_buffer);
+
+    void submit_command_buffer();
+    void present_image();
 };
