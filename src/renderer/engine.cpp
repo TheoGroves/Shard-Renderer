@@ -174,7 +174,7 @@ void Engine::begin_rendering(VkCommandBuffer command_buffer) {
     color_attachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
     color_attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     color_attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    color_attachment.clearValue.color = {{ 0.05f, 0.05f, 0.15f, 1.0f }};
+    color_attachment.clearValue.color = {{ 0.05f, 0.05f, 0.05f, 1.0f }};
 
     VkRenderingInfo rendering_info{};
     rendering_info.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
