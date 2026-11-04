@@ -43,4 +43,9 @@ private:
     std::unique_ptr<Synchronization> synchronization;
 
     bool frame_open = false;
+
+    uint32_t current_image_index = 0;
+
+    void acquire_next_image();
+    void record_command_buffer();
 };

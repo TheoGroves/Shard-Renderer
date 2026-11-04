@@ -25,14 +25,29 @@ void Engine::begin_frame() {
     if (frame_open) {
         throw std::runtime_error("Cannot open a frame before closing the previous one.");
     }
-    frame_open = true;
+
+    VkFence fence = synchronization->get_in_flight_fence();
+
+    VkResult result = vkWaitForFences(logical_device->get_handle(), 1, &fence, VK_TRUE, UINT64_MAX);
+
+    if (result != VK_SUCCESS) {
+        throw std::runtime_error("Failed waiting for in-flight fence.");
+    }
+
     main_window->poll_events();
+
+    acquire_next_image();
+
+    frame_open = true;
 }
 
 void Engine::end_frame() {
     if (!frame_open) {
         throw std::runtime_error("Cannot close a frame before opening a frame.");
     }
+
+    record_command_buffer();
+
     frame_open = false;
 }
 
@@ -50,4 +65,35 @@ VkInstance Engine::get_vk_handle() {
 
 VkPhysicalDevice Engine::get_device_handle() {
     return physical_device->get_handle();
+}
+
+void Engine::acquire_next_image() {
+    VkResult result = vkAcquireNextImageKHR(
+        logical_device->get_handle(),
+        swapchain->get_handle(),
+        UINT64_MAX,
+        synchronization->get_image_available_semaphore(),
+        VK_NULL_HANDLE,
+        &current_image_index
+    );
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+        throw std::runtime_error("Swapchain is out of date.");
+        // TODO: implement resizing
+    }
+
+    if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+        throw std::runtime_error("Failed to acquire swapchain image: " + std::to_string(static_cast<int>(result)));
+    }
+}
+
+void Engine::record_command_buffer() {
+    VkCommandBuffer command_buffer = command_buffers->get_buffers()[0];
+
+    command_buffers->reset(command_buffer);
+    command_buffers->begin(command_buffer);
+
+    // TODO: Dynamic rendering commands
+
+    command_buffers->end(command_buffer);
 }
