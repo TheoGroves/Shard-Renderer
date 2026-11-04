@@ -97,7 +97,10 @@ target_link_libraries(Tests PRIVATE
 )
 
 include(GoogleTest)
-gtest_discover_tests(Tests)
+
+gtest_discover_tests(Tests
+    WORKING_DIRECTORY "$<TARGET_FILE_DIR:Tests>"
+)
 
 # Copy shaders to compiled directory
 add_custom_command(TARGET ShardRenderer POST_BUILD
