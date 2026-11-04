@@ -6,7 +6,8 @@
 #include "vk/surface.h"
 #include "vk/swapchain.h"
 #include "vk/swapchain_image_views.h"
-#include "../window/window.h"
+#include "window/window.h"
+#include "glfw_context.h"
 #include <memory>
 
 class Engine {
@@ -26,6 +27,7 @@ public:
     VkInstance get_vk_handle();
     VkPhysicalDevice get_device_handle();
 private:
+    std::shared_ptr<GlfwContext> context;
     std::unique_ptr<Window> main_window;
     std::unique_ptr<VulkanInstance> instance;
     std::unique_ptr<Surface> surface;

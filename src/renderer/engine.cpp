@@ -1,9 +1,11 @@
 #include "engine.h"
+#include "glfw_context.h"
 #include <iostream>
 #include <stdexcept>
 
 Engine::Engine(uint32_t width, uint32_t height) {
-    main_window = std::make_unique<Window>(width, height, "ShardRenderer");
+    context = std::make_shared<GlfwContext>();
+    main_window = std::make_unique<Window>(context, width, height, "ShardRenderer");
     instance = std::make_unique<VulkanInstance>();
     surface = std::make_unique<Surface>(instance->get_handle(), main_window->get_handle());
     physical_device = std::make_unique<PhysicalDevice>(instance->get_handle(), surface->get_handle());

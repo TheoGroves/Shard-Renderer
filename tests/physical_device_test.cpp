@@ -1,38 +1,27 @@
 #include <gtest/gtest.h>
 
+#include "../src/renderer/glfw_context.h"
 #include "../src/renderer/vk/vulkan_instance.h"
 #include "../src/renderer/vk/physical_device.h"
 #include "../src/renderer/vk/surface.h"
-#include "../src/window/window.h"
+#include "../src/renderer/window/window.h"
 
-#include <GLFW/glfw3.h>
 #include <type_traits>
 #include <memory>
 
 class PhysicalDeviceTest : public ::testing::Test {
 protected:
+    std::shared_ptr<GlfwContext> context = std::make_shared<GlfwContext>();
     std::unique_ptr<VulkanInstance> instance;
     std::unique_ptr<Window> window;
     std::unique_ptr<Surface> surface;
     std::unique_ptr<PhysicalDevice> physical_device;
 
     void SetUp() override {
-        ASSERT_EQ(glfwInit(), GLFW_TRUE);
-
-        window = std::make_unique<Window>(1280, 720, "Physical Device Test");
-
         instance = std::make_unique<VulkanInstance>();
+        window = std::make_unique<Window>(context, 1280, 720, "Physical Device Test");
         surface = std::make_unique<Surface>(instance->get_handle(), window->get_handle());
         physical_device = std::make_unique<PhysicalDevice>(instance->get_handle(), surface->get_handle());
-    }
-
-    void TearDown() override {
-        physical_device.reset();
-        surface.reset();
-        instance.reset();
-        window.reset();
-
-        glfwTerminate();
     }
 };
 

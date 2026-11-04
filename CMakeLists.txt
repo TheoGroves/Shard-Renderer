@@ -39,13 +39,14 @@ find_library(VULKAN_LIBRARY
 # Renderer library
 add_library(Renderer STATIC
     src/renderer/engine.cpp
+    src/renderer/glfw_context.cpp
     src/renderer/vk/vulkan_instance.cpp
     src/renderer/vk/physical_device.cpp
     src/renderer/vk/logical_device.cpp
     src/renderer/vk/surface.cpp
     src/renderer/vk/swapchain.cpp
     src/renderer/vk/swapchain_image_views.cpp
-    src/window/window.cpp
+    src/renderer/window/window.cpp
 )
 
 target_include_directories(Renderer PUBLIC
@@ -72,6 +73,7 @@ target_link_libraries(ShardRenderer PRIVATE
 enable_testing()
 
 add_executable(Tests
+    tests/glfw_context_test.cpp
     tests/vulkan_test.cpp
     tests/window_test.cpp
     tests/engine_test.cpp

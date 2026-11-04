@@ -1,18 +1,13 @@
 #include <gtest/gtest.h>
+
+#include "../src/renderer/glfw_context.h"
 #include "../src/renderer/engine.h"
-#include <GLFW/glfw3.h>
 #include <stdexcept>
 #include <type_traits>
 
 class EngineTest : public ::testing::Test {
 protected:
-    void SetUp() override {
-        ASSERT_EQ(glfwInit(), GLFW_TRUE);
-    }
-
-    void TearDown() override {
-        glfwTerminate();
-    }
+    GlfwContext context;
 };
 
 TEST_F(EngineTest, ThrowOnZeroWidth) {

@@ -1,22 +1,14 @@
 #include <gtest/gtest.h>
-#include "../src/window/window.h"
-#include <GLFW/glfw3.h>
+
+#include "../src/renderer/glfw_context.h"
+#include "../src/renderer/window/window.h"
 #include <type_traits>
+#include <memory>
 
 class WindowTest : public ::testing::Test {
 protected:
-    Window* window = nullptr;
-
-    void SetUp() override {
-        ASSERT_EQ(glfwInit(), GLFW_TRUE);
-
-        window = new Window(1280, 720, "Window Test");
-    }
-
-    void TearDown() override {
-        delete window;
-        glfwTerminate();
-    }
+    std::shared_ptr<GlfwContext> context = std::make_shared<GlfwContext>();
+    std::unique_ptr<Window> window = std::make_unique<Window>(context, 1280, 720, "Window Test");
 };
 
 TEST_F(WindowTest, CreatesValidWindow) {
@@ -31,23 +23,22 @@ TEST_F(WindowTest, ReturnsConsistentWindow) {
 }
 
 TEST(WindowTests, ThrowOnZeroWidth) {
-    EXPECT_THROW(Window(0, 720, "Window Test"), std::runtime_error);
+    auto context = std::make_shared<GlfwContext>();
+    EXPECT_THROW(Window(context, 0, 720, "Window Test"), std::runtime_error);
 }
 
 TEST(WindowTests, ThrowOnZeroHeight) {
-    EXPECT_THROW(Window(1280, 0, "Window Test"), std::runtime_error);
+    auto context = std::make_shared<GlfwContext>();
+    EXPECT_THROW(Window(context, 1280, 0, "Window Test"), std::runtime_error);
 }
 
 TEST(WindowTests, CanCreateAndDestroyWindow) {
-    ASSERT_EQ(glfwInit(), GLFW_TRUE);
-
+    auto context = std::make_shared<GlfwContext>();
     {
-        Window window(1280, 720, "Window Test");
+        Window window(context, 1280, 720, "Window Test");
 
         ASSERT_NE(window.get_handle(), nullptr);
     }
-
-    glfwTerminate();
 
     SUCCEED();
 }
