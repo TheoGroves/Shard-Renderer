@@ -85,7 +85,7 @@ void VulkanInstance::create_instance() {
     app_info.applicationVersion = VK_MAKE_VERSION(0, 0, 1);
     app_info.pEngineName = "ShardRenderer";
     app_info.engineVersion = VK_MAKE_VERSION(0, 0, 2);
-    app_info.apiVersion = VK_API_VERSION_1_0;
+    app_info.apiVersion = VK_API_VERSION_1_3;
 
     uint32_t extension_count = 0;
 

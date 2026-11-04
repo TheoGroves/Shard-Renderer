@@ -59,9 +59,24 @@ void LogicalDevice::create_logical_device(const PhysicalDevice& physical_device)
 
     VkPhysicalDeviceFeatures device_features{};
 
+    VkPhysicalDeviceVulkan13Features features13{};
+    features13.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
+
+    VkPhysicalDeviceFeatures2 features2{};
+    features2.pNext = &features13;
+
+    vkGetPhysicalDeviceFeatures2(physical_device.get_handle(), &features2);
+
+    if (!features13.dynamicRendering) {
+        throw std::runtime_error("Physical device does not support dynamic rendering.");
+    }
+
+    features13.dynamicRendering = VK_TRUE;
+
     VkDeviceCreateInfo create_info{};
 
     create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    create_info.pNext = &features13;
     create_info.queueCreateInfoCount = static_cast<uint32_t>(queue_create_infos.size());
     create_info.pQueueCreateInfos = queue_create_infos.data();
     create_info.pEnabledFeatures = &device_features;
