@@ -8,6 +8,7 @@
 #include "vk/swapchain_image_views.h"
 #include "vk/command_pool.h"
 #include "vk/command_buffers.h"
+#include "vk/synchronization.h"
 #include "window/window.h"
 #include "glfw_context.h"
 #include <memory>
@@ -39,6 +40,7 @@ private:
     std::unique_ptr<SwapchainImageViews> swapchain_image_views;
     std::unique_ptr<CommandPool> command_pool;
     std::unique_ptr<CommandBuffers> command_buffers;
+    std::unique_ptr<Synchronization> synchronization;
 
     bool frame_open = false;
 };
