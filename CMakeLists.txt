@@ -105,3 +105,9 @@ add_custom_command(TARGET ShardRenderer POST_BUILD
         "${CMAKE_SOURCE_DIR}/shaders"
         "$<TARGET_FILE_DIR:ShardRenderer>/shaders"
 )
+
+add_custom_command(TARGET Tests POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/shaders"
+        "$<TARGET_FILE_DIR:Tests>/shaders"
+)
