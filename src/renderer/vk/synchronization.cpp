@@ -80,7 +80,7 @@ void Synchronization::create_fences(uint32_t frames_in_flight) {
 }
 
 VkSemaphore Synchronization::get_image_available_semaphore(uint32_t frame_index) const {
-    if (frame_index >= render_finished_semaphores.size()) {
+    if (frame_index >= image_available_semaphores.size()) {
         throw std::runtime_error("Invalid frame index.");
     }
 
@@ -96,7 +96,7 @@ VkSemaphore Synchronization::get_render_finished_semaphore(uint32_t image_index)
 }
 
 VkFence Synchronization::get_in_flight_fence(uint32_t frame_index) const {
-    if (frame_index >= render_finished_semaphores.size()) {
+    if (frame_index >= in_flight_fences.size()) {
         throw std::runtime_error("Invalid frame index.");
     }
     

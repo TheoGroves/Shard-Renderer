@@ -232,8 +232,6 @@ void Engine::submit_command_buffer() {
 
     submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
     submit_info.waitSemaphoreCount = 1;
     submit_info.pWaitSemaphores = &wait_semaphore;
     submit_info.pWaitDstStageMask = &wait_stage;
@@ -333,7 +331,7 @@ void Engine::recreate_swapchain() {
     auto new_graphics_pipeline = std::make_unique<GraphicsPipeline>(*logical_device, *new_swapchain, "shaders/triangle.vert.spv", "shaders/triangle.frag.spv");
     auto new_synchronization = std::make_unique<Synchronization>(*logical_device, MAX_FRAMES_IN_FLIGHT, static_cast<uint32_t>(new_swapchain->get_images().size()));
 
-    images_in_flight.assign(swapchain->get_images().size(), VK_NULL_HANDLE);
+    images_in_flight.assign(new_swapchain->get_images().size(), VK_NULL_HANDLE);
 
     graphics_pipeline = std::move(new_graphics_pipeline);
     synchronization = std::move(new_synchronization);
