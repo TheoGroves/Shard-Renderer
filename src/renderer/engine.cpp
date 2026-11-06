@@ -39,7 +39,9 @@ void Engine::begin_frame() {
 
     main_window->poll_events();
 
-    acquire_next_image();
+    while (!acquire_next_image()) {
+        recreate_swapchain();
+    }
 
     frame_open = true;
 }
@@ -54,6 +56,11 @@ void Engine::end_frame() {
     present_image();
 
     frame_open = false;
+
+    if (recreate_after_present) {
+        recreate_after_present = false;
+        recreate_swapchain();
+    }
 }
 
 bool Engine::should_close() const {
@@ -72,7 +79,7 @@ VkPhysicalDevice Engine::get_device_handle() {
     return physical_device->get_handle();
 }
 
-void Engine::acquire_next_image() {
+bool Engine::acquire_next_image() {
     VkResult result = vkAcquireNextImageKHR(
         logical_device->get_handle(),
         swapchain->get_handle(),
@@ -83,13 +90,19 @@ void Engine::acquire_next_image() {
     );
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-        throw std::runtime_error("Swapchain is out of date.");
-        // TODO: implement resizing
+        return false;
     }
 
-    if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+    if (result == VK_SUBOPTIMAL_KHR) {
+        recreate_after_present = true;
+        return true;
+    }
+
+    if (result != VK_SUCCESS) {
         throw std::runtime_error("Failed to acquire swapchain image: " + std::to_string(static_cast<int>(result)));
     }
+
+    return true;
 }
 
 void Engine::record_command_buffer() {
@@ -249,7 +262,8 @@ void Engine::present_image() {
     VkResult result = vkQueuePresentKHR(logical_device->get_present_queue(), &present_info);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-        throw std::runtime_error("Swapchain needs recreation.");
+        recreate_after_present = true;
+        return;
     }
 
     if (result != VK_SUCCESS) {
@@ -276,4 +290,37 @@ void Engine::set_viewport_and_scissor(VkCommandBuffer command_buffer) {
     scissor.extent = extent;
 
     vkCmdSetScissor(command_buffer, 0, 1, &scissor);
+}
+
+void Engine::recreate_swapchain() {
+    int width = 0;
+    int height = 0;
+
+    while (width == 0 || height == 0) {
+        context->get_framebuffer_size(main_window->get_handle(), &width, &height);
+
+        if (width == 0 || height == 0) {
+            glfwWaitEvents();
+        }
+    }
+
+    VkResult result = vkDeviceWaitIdle(logical_device->get_handle());
+
+    if (result != VK_SUCCESS) {
+        throw std::runtime_error("Failed waiting for device to become idle.");
+    }
+
+    VkSwapchainKHR old_swapchain = swapchain->get_handle();
+
+    auto new_swapchain = std::make_unique<Swapchain>(*physical_device, *logical_device, *surface, *main_window, old_swapchain);
+    auto new_swapchain_image_views = std::make_unique<SwapchainImageViews>(*logical_device, *new_swapchain);
+    auto new_graphics_pipeline = std::make_unique<GraphicsPipeline>(*logical_device, *new_swapchain, "shaders/triangle.vert.spv", "shaders/triangle.frag.spv");
+    auto new_synchronization = std::make_unique<Synchronization>(*logical_device, static_cast<uint32_t>(new_swapchain->get_images().size()));
+
+    graphics_pipeline = std::move(new_graphics_pipeline);
+    synchronization = std::move(new_synchronization);
+    swapchain_image_views = std::move(new_swapchain_image_views);
+    swapchain = std::move(new_swapchain);
+
+    std::cout << "Swapchain recreated successfully.\n";
 }

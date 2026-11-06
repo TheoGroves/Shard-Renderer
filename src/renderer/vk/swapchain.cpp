@@ -7,8 +7,8 @@
 #include <string>
 #include <iostream>
 
-Swapchain::Swapchain(const PhysicalDevice& physical_device, const LogicalDevice& logical_device, const Surface& surface, const Window& window) {
-    create_swapchain(physical_device, logical_device, surface, window);
+Swapchain::Swapchain(const PhysicalDevice& physical_device, const LogicalDevice& logical_device, const Surface& surface, const Window& window, VkSwapchainKHR old_swapchain) {
+    create_swapchain(physical_device, logical_device, surface, window, old_swapchain);
 }
 
 Swapchain::~Swapchain() {
@@ -117,7 +117,7 @@ VkExtent2D Swapchain::choose_extent(const VkSurfaceCapabilitiesKHR& capabilities
     return actual_extent;
 }
 
-void Swapchain::create_swapchain(const PhysicalDevice& physical_device, const LogicalDevice& logical_device, const Surface& surface, const Window& window) {
+void Swapchain::create_swapchain(const PhysicalDevice& physical_device, const LogicalDevice& logical_device, const Surface& surface, const Window& window, VkSwapchainKHR old_swapchain) {
     device = logical_device.get_handle();
 
     SwapchainSupportDetails support = query_swapchain_support(physical_device.get_handle(), surface.get_handle());
@@ -202,7 +202,7 @@ void Swapchain::create_swapchain(const PhysicalDevice& physical_device, const Lo
 
     create_info.presentMode = present_mode;
     create_info.clipped = VK_TRUE;
-    create_info.oldSwapchain = VK_NULL_HANDLE;
+    create_info.oldSwapchain = old_swapchain;
 
     VkResult result = vkCreateSwapchainKHR(device, &create_info, nullptr, &handle);
 

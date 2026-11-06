@@ -48,7 +48,9 @@ private:
 
     uint32_t current_image_index = 0;
 
-    void acquire_next_image();
+    bool recreate_after_present = false;
+
+    bool acquire_next_image();
     void record_command_buffer();
 
     void transition_image_layout(VkCommandBuffer command_buffer, VkImage image, VkImageLayout old_layout, VkImageLayout new_layout);
@@ -60,4 +62,6 @@ private:
     void present_image();
 
     void set_viewport_and_scissor(VkCommandBuffer command_buffer);
+
+    void recreate_swapchain();
 };

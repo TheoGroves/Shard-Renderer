@@ -11,7 +11,7 @@
 
 class Swapchain {
 public:
-    Swapchain(const PhysicalDevice& physical_device, const LogicalDevice& logical_device, const Surface& surface, const Window& window);
+    Swapchain(const PhysicalDevice& physical_device, const LogicalDevice& logical_device, const Surface& surface, const Window& window, VkSwapchainKHR old_swapchain = VK_NULL_HANDLE);
     ~Swapchain();
 
     Swapchain(const Swapchain&) = delete;
@@ -40,7 +40,7 @@ private:
     VkFormat image_format = VK_FORMAT_UNDEFINED;
     VkExtent2D extent{};
 
-    void create_swapchain(const PhysicalDevice& physical_device, const LogicalDevice& logical_device, const Surface& surface, const Window& window);
+    void create_swapchain(const PhysicalDevice& physical_device, const LogicalDevice& logical_device, const Surface& surface, const Window& window, VkSwapchainKHR old_swapchain = VK_NULL_HANDLE);
     SwapchainSupportDetails query_swapchain_support(VkPhysicalDevice physical_device, VkSurfaceKHR surface) const;
     VkSurfaceFormatKHR choose_surface_format(const std::vector<VkSurfaceFormatKHR>& available_formats) const;
     VkPresentModeKHR choose_present_mode(const std::vector<VkPresentModeKHR>& available_modes) const;

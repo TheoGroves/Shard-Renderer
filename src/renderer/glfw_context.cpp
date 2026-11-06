@@ -49,3 +49,7 @@ void GlfwContext::destroy_window(GLFWwindow* window) {
 bool GlfwContext::should_window_close(GLFWwindow* window) {
     return glfwWindowShouldClose(window);
 }
+
+void GlfwContext::get_framebuffer_size(GLFWwindow* window, int* width, int* height) {
+    return glfwGetFramebufferSize(window, width, height);
+}

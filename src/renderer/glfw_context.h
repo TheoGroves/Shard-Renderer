@@ -15,6 +15,7 @@ public:
     GLFWwindow* create_window(uint32_t width, uint32_t height, const std::string& title);
     void destroy_window(GLFWwindow* window);
     bool should_window_close(GLFWwindow* window);
+    void get_framebuffer_size(GLFWwindow* window, int* width, int* height);
 
 private:
     bool initialized = false;

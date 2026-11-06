@@ -1,6 +1,9 @@
 @echo off
 setlocal
 
+echo Compiling shaders...
+call compile_shaders.bat
+
 echo Configuring renderer...
 
 cmake -S . -B build/Renderer
