@@ -50,6 +50,7 @@ add_library(Renderer STATIC
     src/renderer/vk/command_buffers.cpp
     src/renderer/vk/synchronization.cpp
     src/renderer/vk/graphics_pipeline.cpp
+    src/renderer/vk/buffer.cpp
     src/renderer/window/window.cpp
 )
 
@@ -89,6 +90,7 @@ add_executable(Tests
     tests/command_buffers_test.cpp
     tests/synchronization_test.cpp
     tests/graphics_pipeline_test.cpp
+    tests/buffer_test.cpp
 )
 
 target_link_libraries(Tests PRIVATE
