@@ -30,20 +30,34 @@ protected:
         physical_device = std::make_unique<PhysicalDevice>(instance->get_handle(), surface->get_handle());
         logical_device = std::make_unique<LogicalDevice>(*physical_device);
         swapchain = std::make_unique<Swapchain>(*physical_device, *logical_device, *surface, *window);
-        synchronization = std::make_unique<Synchronization>(*logical_device, static_cast<uint32_t>(swapchain->get_images().size()));
+        synchronization = std::make_unique<Synchronization>(*logical_device, 2, static_cast<uint32_t>(swapchain->get_images().size()));
     }
 };
 
 TEST_F(SynchronizationTest, CreatesValidInFlightFence) {
-    ASSERT_NE(synchronization->get_in_flight_fence(), VK_NULL_HANDLE);
+    ASSERT_NE(synchronization->get_in_flight_fence(0), VK_NULL_HANDLE);
 }
 
 TEST_F(SynchronizationTest, CreatesValidImageAvailableSemaphore) {
-    ASSERT_NE(synchronization->get_image_available_semaphore(), VK_NULL_HANDLE);
+    ASSERT_NE(synchronization->get_image_available_semaphore(0), VK_NULL_HANDLE);
 }
 
 TEST_F(SynchronizationTest, CreatesValidRenderFinishedSemaphore) {
     ASSERT_NE(synchronization->get_render_finished_semaphore(0), VK_NULL_HANDLE);
+}
+
+TEST_F(SynchronizationTest, CreatesMultipleInFlightFences) {
+    EXPECT_NE(synchronization->get_in_flight_fence(0), VK_NULL_HANDLE);
+    EXPECT_NE(synchronization->get_in_flight_fence(1), VK_NULL_HANDLE);
+}
+
+TEST_F(SynchronizationTest, CreatesMultipleImageAvailableSemaphores) {
+    EXPECT_NE(synchronization->get_image_available_semaphore(0), VK_NULL_HANDLE);
+    EXPECT_NE(synchronization->get_image_available_semaphore(1), VK_NULL_HANDLE);
+}
+
+TEST_F(SynchronizationTest, CreatesDifferentInFlightFences) {
+    EXPECT_NE(synchronization->get_in_flight_fence(0), synchronization->get_in_flight_fence(1));
 }
 
 TEST(SynchronizationTests, IsNotCopyConstructible) {

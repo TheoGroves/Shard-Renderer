@@ -16,8 +16,10 @@ Engine::Engine(uint32_t width, uint32_t height) {
     swapchain_image_views = std::make_unique<SwapchainImageViews>(*logical_device, *swapchain);
     graphics_pipeline = std::make_unique<GraphicsPipeline>(*logical_device, *swapchain, "shaders/triangle.vert.spv", "shaders/triangle.frag.spv");
     command_pool = std::make_unique<CommandPool>(*logical_device);
-    command_buffers = std::make_unique<CommandBuffers>(*logical_device, *command_pool, 1);
-    synchronization = std::make_unique<Synchronization>(*logical_device, static_cast<uint32_t>(swapchain->get_images().size()));
+    command_buffers = std::make_unique<CommandBuffers>(*logical_device, *command_pool, MAX_FRAMES_IN_FLIGHT);
+    synchronization = std::make_unique<Synchronization>(*logical_device, MAX_FRAMES_IN_FLIGHT, static_cast<uint32_t>(swapchain->get_images().size()));
+    images_in_flight.resize(swapchain->get_images().size(), VK_NULL_HANDLE);
+
 }
 
 Engine::~Engine() {
@@ -29,9 +31,9 @@ void Engine::begin_frame() {
         throw std::runtime_error("Cannot open a frame before closing the previous one.");
     }
 
-    VkFence fence = synchronization->get_in_flight_fence();
+    VkFence current_fence = synchronization->get_in_flight_fence(current_frame);
 
-    VkResult result = vkWaitForFences(logical_device->get_handle(), 1, &fence, VK_TRUE, UINT64_MAX);
+    VkResult result = vkWaitForFences(logical_device->get_handle(), 1, &current_fence, VK_TRUE, UINT64_MAX);
 
     if (result != VK_SUCCESS) {
         throw std::runtime_error("Failed waiting for in-flight fence.");
@@ -42,6 +44,18 @@ void Engine::begin_frame() {
     while (!acquire_next_image()) {
         recreate_swapchain();
     }
+
+    if (images_in_flight[current_image_index] != VK_NULL_HANDLE) {
+        VkFence image_fence = images_in_flight[current_image_index];
+
+        result = vkWaitForFences(logical_device->get_handle(), 1, &image_fence, VK_TRUE, UINT64_MAX);
+
+        if (result != VK_SUCCESS) {
+            throw std::runtime_error("Failed waiting for image fence.");
+        }
+    }
+
+    images_in_flight[current_image_index] = current_fence;
 
     frame_open = true;
 }
@@ -57,6 +71,8 @@ void Engine::end_frame() {
 
     frame_open = false;
 
+    current_frame = (current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
+    
     if (recreate_after_present) {
         recreate_after_present = false;
         recreate_swapchain();
@@ -84,7 +100,7 @@ bool Engine::acquire_next_image() {
         logical_device->get_handle(),
         swapchain->get_handle(),
         UINT64_MAX,
-        synchronization->get_image_available_semaphore(),
+        synchronization->get_image_available_semaphore(current_frame),
         VK_NULL_HANDLE,
         &current_image_index
     );
@@ -106,7 +122,7 @@ bool Engine::acquire_next_image() {
 }
 
 void Engine::record_command_buffer() {
-    VkCommandBuffer command_buffer = command_buffers->get_buffers()[0];
+    VkCommandBuffer command_buffer = command_buffers->get_buffers()[current_frame];
 
     command_buffers->reset(command_buffer);
     command_buffers->begin(command_buffer);
@@ -205,9 +221,9 @@ void Engine::end_rendering(VkCommandBuffer command_buffer) {
 }
 
 void Engine::submit_command_buffer() {
-    VkCommandBuffer command_buffer = command_buffers->get_buffers()[0];
+    VkCommandBuffer command_buffer = command_buffers->get_buffers()[current_frame];
 
-    VkSemaphore wait_semaphore = synchronization->get_image_available_semaphore();
+    VkSemaphore wait_semaphore = synchronization->get_image_available_semaphore(current_frame);
     VkSemaphore signal_semaphore = synchronization->get_render_finished_semaphore(current_image_index);
     
     VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
@@ -228,7 +244,7 @@ void Engine::submit_command_buffer() {
     submit_info.signalSemaphoreCount = 1;
     submit_info.pSignalSemaphores = &signal_semaphore;
 
-    VkFence fence = synchronization->get_in_flight_fence();
+    VkFence fence = synchronization->get_in_flight_fence(current_frame);
 
     VkResult result = vkResetFences(logical_device->get_handle(), 1, &fence);
 
@@ -315,7 +331,9 @@ void Engine::recreate_swapchain() {
     auto new_swapchain = std::make_unique<Swapchain>(*physical_device, *logical_device, *surface, *main_window, old_swapchain);
     auto new_swapchain_image_views = std::make_unique<SwapchainImageViews>(*logical_device, *new_swapchain);
     auto new_graphics_pipeline = std::make_unique<GraphicsPipeline>(*logical_device, *new_swapchain, "shaders/triangle.vert.spv", "shaders/triangle.frag.spv");
-    auto new_synchronization = std::make_unique<Synchronization>(*logical_device, static_cast<uint32_t>(new_swapchain->get_images().size()));
+    auto new_synchronization = std::make_unique<Synchronization>(*logical_device, MAX_FRAMES_IN_FLIGHT, static_cast<uint32_t>(new_swapchain->get_images().size()));
+
+    images_in_flight.assign(swapchain->get_images().size(), VK_NULL_HANDLE);
 
     graphics_pipeline = std::move(new_graphics_pipeline);
     synchronization = std::move(new_synchronization);

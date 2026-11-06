@@ -13,6 +13,7 @@
 #include "window/window.h"
 #include "glfw_context.h"
 #include <memory>
+#include <vector>
 
 class Engine {
 public:
@@ -64,4 +65,8 @@ private:
     void set_viewport_and_scissor(VkCommandBuffer command_buffer);
 
     void recreate_swapchain();
+
+    static constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
+    uint32_t current_frame = 0;
+    std::vector<VkFence> images_in_flight;
 };
